@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barbearia U M L — Acesso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;800;900&display=swap">
+
+<!-- Biblioteca do Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --void-black:#050508; --void-dark:#0A0A0F;
+  --neon-cyan:#00D4FF; --neon-blue:#4D9FFF;
+  --ink-soft:rgba(255,255,255,0.7); --ink-mute:rgba(255,255,255,0.5); --ink-faint:rgba(255,255,255,0.3);
+  --ease-quiet:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--void-black);color:#fff;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh}
+body{display:flex;align-items:center;justify-content:center;padding:2rem}
+a{color:var(--neon-cyan);text-decoration:none}
+
+.login-box{
+  width:100%;max-width:420px;background:rgba(10,10,15,0.6);
+  border:1px solid rgba(255,255,255,0.1);padding:3rem 2.5rem;
+  backdrop-filter:blur(10px);position:relative;
+}
+.login-box::before{
+  content:'';position:absolute;left:0;top:0;width:2px;height:100%;background:var(--neon-cyan);
+}
+.back-link{
+  position:fixed;top:2rem;left:2rem;font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);
+}
+.back-link:hover{color:#fff}
+
+.logo{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.5rem;
+  letter-spacing:-0.02em;margin-bottom:.5rem;
+}
+.title{
+  font-family:'Inter',sans-serif;font-weight:800;font-size:1.8rem;
+  letter-spacing:-0.02em;margin-bottom:2rem;
+}
+.subtitle{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.25em;
+  text-transform:uppercase;color:var(--neon-cyan);margin-bottom:1rem;
+}
+
+.tabs{display:flex;margin-bottom:2rem;border-bottom:1px solid var(--ink-faint)}
+.tab{
+  flex:1;padding:1rem 0;text-align:center;cursor:pointer;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;
+  text-transform:uppercase;color:var(--ink-mute);transition:color .3s var(--ease-quiet);
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+}
+.tab.active{color:var(--neon-cyan);border-bottom-color:var(--neon-cyan)}
+
+.form-group{margin-bottom:1.5rem;display:none}
+.form-group.active{display:block}
+label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.5rem}
+input{
+  width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.15);
+  color:#fff;font-family:'Inter',sans-serif;font-size:1rem;padding:.7rem 0;outline:none;
+  transition:border-color .4s var(--ease-quiet)
+}
+input:focus{border-bottom-color:var(--neon-cyan)}
+input::placeholder{color:var(--ink-faint)}
+
+.btn{
+  width:100%;margin-top:1rem;padding:1.1rem 2rem;background:var(--neon-cyan);color:var(--void-black);
+  border:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.25em;
+  text-transform:uppercase;cursor:pointer;transition:all .4s var(--ease-quiet);
+}
+.btn:hover{background:#fff}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+
+.msg{margin-top:1rem;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-align:center;color:var(--neon-cyan)}
+.msg.error{color:#ff4d4d}
+
+.info-box{
+  margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--ink-faint);
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;
+  color:var(--ink-mute);line-height:1.6;
+}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">← Voltar para o site</a>
+
+<div class="login-box">
+  <div class="logo">U·M·L</div>
+  <div class="title" id="form-title">Acesse sua conta</div>
+  
+  <div class="tabs">
+    <div class="tab active" id="tab-login" onclick="switchTab('login')">LOGIN</div>
+    <div class="tab" id="tab-cad" onclick="switchTab('cad')">CADASTRO</div>
+  </div>
+
+  <!-- Formulário de Login -->
+  <div class="form-group active" id="form-login">
+    <div class="subtitle">/ Cliente existente</div>
+    <label>E-mail</label>
+    <input type="email" id="login-email" placeholder="seu@email.com">
+    <label style="margin-top:1rem">Senha</label>
+    <input type="password" id="login-pass" placeholder="••••••••">
+    <button class="btn" id="btn-login" onclick="fazerLogin()">Entrar →</button>
+    <div class="msg" id="msg-login"></div>
+  </div>
+
+  <!-- Formulário de Cadastro -->
+  <div class="form-group" id="form-cad">
+    <div class="subtitle">/ Novo cliente</div>
+    <label>Nome completo</label>
+    <input type="text" id="cad-nome" placeholder="Seu nome">
+    <label style="margin-top:1rem">Telefone / WhatsApp</label>
+    <input type="tel" id="cad-tel" placeholder="(11) 90000-0000">
+    <label style="margin-top:1rem">E-mail</label>
+    <input type="email" id="cad-email" placeholder="vo@email.com">
+    <label style="margin-top:1rem">Senha (mínimo 6 caracteres)</label>
+    <input type="password" id="cad-pass" placeholder="••••••••">
+    <button class="btn" id="btn-cad" onclick="cadastrar()">Criar Conta →</button>
+    <div class="msg" id="msg-cad"></div>
+  </div>
+
+  <div class="info-box">
+    Após o login, você terá acesso ao painel de agendamento exclusivo, sem conflito de horários. Se for o CEO, terá acesso ao painel administrativo.
+  </div>
+</div>
+
+<script>
+// 1. Configuração do Supabase com suas chaves
+const SUPABASE_URL = 'https://bululpefngukxmfrfnzk.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_8iEoL6G6SOiTyohLhQq74w_TV0qT3Am';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// 2. Verificar se já está logado ao carregar a página
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (session) {
+    window.location.href = '/painel.html';
+  }
+});
+
+// 3. Alternar abas Login/Cadastro
+function switchTab(tab) {
+  if (tab === 'login') {
+    document.getElementById('tab-login').classList.add('active');
+    document.getElementById('tab-cad').classList.remove('active');
+    document.getElementById('form-login').classList.add('active');
+    document.getElementById('form-cad').classList.remove('active');
+    document.getElementById('form-title').textContent = 'Acesse sua conta';
+  } else {
+    document.getElementById('tab-cad').classList.add('active');
+    document.getElementById('tab-login').classList.remove('active');
+    document.getElementById('form-cad').classList.add('active');
+    document.getElementById('form-login').classList.remove('active');
+    document.getElementById('form-title').textContent = 'Crie sua conta';
+  }
+}
+
+// 4. Função de Login
+async function fazerLogin() {
+  const btn = document.getElementById('btn-login');
+  const msg = document.getElementById('msg-login');
+  const email = document.getElementById('login-email').value;
+  const pass = document.getElementById('login-pass').value;
+
+  if (!email || !pass) { msg.textContent = "Preencha e-mail e senha."; msg.className = "msg error"; return; }
+  
+  btn.disabled = true;
+  btn.textContent = "Verificando...";
+  msg.textContent = "";
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: pass,
+  });
+
+  if (error) {
+    msg.textContent = "Erro: " + error.message;
+    msg.className = "msg error";
+    btn.disabled = false;
+    btn.textContent = "Entrar →";
+  } else {
+    msg.textContent = "Login correto! Redirecionando...";
+    msg.className = "msg";
+    setTimeout(() => window.location.href = '/painel.html', 1000);
+  }
+}
+
+// 5. Função de Cadastro
+async function cadastrar() {
+  const btn = document.getElementById('btn-cad');
+  const msg = document.getElementById('msg-cad');
+  const nome = document.getElementById('cad-nome').value;
+  const tel = document.getElementById('cad-tel').value;
+  const email = document.getElementById('cad-email').value;
+  const pass = document.getElementById('cad-pass').value;
+
+  if (!nome || !tel || !email || !pass) { msg.textContent = "Preencha todos os campos."; msg.className = "msg error"; return; }
+  if (pass.length < 6) { msg.textContent = "Senha precisa ter no mínimo 6 caracteres."; msg.className = "msg error"; return; }
+
+  btn.disabled = true;
+  btn.textContent = "Criando conta...";
+  msg.textContent = "";
+
+  const { data, error } = await supabase.auth.signUp({
+    email: email,
+    password: pass,
+    options: {
+      data: {
+        nome: nome,
+        telefone: tel
+      }
+    }
+  });
+
+  if (error) {
+    msg.textContent = "Erro: " + error.message;
+    msg.className = "msg error";
+    btn.disabled = false;
+    btn.textContent = "Criar Conta →";
+  } else {
+    msg.textContent = "Conta criada! Redirecionando...";
+    msg.className = "msg";
+    setTimeout(() => window.location.href = '/painel.html', 1500);
+  }
+}
+</script>
+
+</body>
+</html>

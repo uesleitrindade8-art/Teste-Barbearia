@@ -52,9 +52,11 @@ nav.top{
   mix-blend-mode:difference
 }
 nav.top .logo{font-weight:700;color:#fff}
-nav.top .links{display:flex;gap:2.5rem}
+nav.top .links{display:flex;gap:2.5rem;align-items:center}
 nav.top .links a{color:var(--ink-soft);text-decoration:none;transition:color .3s var(--ease-quiet)}
 nav.top .links a:hover{color:#fff}
+nav.top .links a.login-btn{color:var(--neon-cyan);border:1px solid var(--neon-cyan);padding:0.5rem 1rem;border-radius:2px}
+nav.top .links a.login-btn:hover{background:var(--neon-cyan);color:var(--void-black)}
 nav.top .meta{color:var(--ink-mute)}
 @media (max-width:768px){
   nav.top .links{display:none}
@@ -114,65 +116,6 @@ section.services{padding:8rem 2rem;max-width:1400px;margin:0 auto}
 .service-card .price{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;color:var(--neon-cyan);letter-spacing:-0.02em}
 .service-card .price .currency{font-size:1rem;color:var(--ink-mute);vertical-align:top;margin-right:.2rem}
 .service-card .duration{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-mute);letter-spacing:0.2em;margin-top:.5rem;text-transform:uppercase}
-
-/* ====== Booking ====== */
-section.booking{padding:8rem 2rem;max-width:1100px;margin:0 auto}
-.booking-container{display:grid;grid-template-columns:1fr 1.8fr;gap:4rem}
-@media (max-width:900px){.booking-container{grid-template-columns:1fr;gap:2.5rem}}
-.booking-info .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--neon-cyan);display:flex;align-items:center;gap:.8rem;margin-bottom:2rem}
-.booking-info .label::before{content:'';width:24px;height:1px;background:var(--neon-cyan)}
-.booking-info h2{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(2.2rem,4vw,3.5rem);letter-spacing:-0.02em;line-height:1;margin-bottom:1.5rem}
-.booking-info p{color:var(--ink-soft);font-size:1rem;line-height:1.6;margin-bottom:2rem}
-.booking-info .hours{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--ink-soft);line-height:2;border-top:1px solid var(--ink-faint);padding-top:1.5rem}
-.booking-info .hours .day{display:flex;justify-content:space-between}
-.booking-info .hours .day .d{color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.1em;font-size:.75rem}
-.booking-info .hours .closed{color:var(--ink-faint)}
-
-.form-box{background:rgba(10,10,15,0.4);border:1px solid rgba(255,255,255,0.08);padding:2.5rem;backdrop-filter:blur(8px)}
-.form-box .step{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.25em;color:var(--neon-cyan);text-transform:uppercase;margin-bottom:1.5rem}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
-.form-row.full{grid-template-columns:1fr}
-@media (max-width:600px){.form-row{grid-template-columns:1fr}}
-label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.5rem}
-input,select,textarea{
-  width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.15);
-  color:#fff;font-family:'Inter',sans-serif;font-size:1rem;padding:.7rem 0;outline:none;
-  transition:border-color .4s var(--ease-quiet)
-}
-input:focus,select:focus,textarea:focus{border-bottom-color:var(--neon-cyan)}
-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300D4FF' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .5rem center;padding-right:1.5rem}
-select option{background:var(--void-dark);color:#fff}
-input::placeholder,textarea::placeholder{color:var(--ink-faint)}
-input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(0.5);cursor:none}
-input[type="date"]::-webkit-calendar-picker-indicator:hover{filter:invert(1) opacity(1)}
-
-.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.5rem}
-@media (max-width:600px){.time-grid{grid-template-columns:repeat(3,1fr)}}
-.time-slot{font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:.6rem .4rem;text-align:center;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--ink-soft);transition:all .3s var(--ease-precise);letter-spacing:0.05em}
-.time-slot:hover{border-color:var(--neon-cyan);color:var(--neon-cyan)}
-.time-slot.selected{background:var(--neon-cyan);color:var(--void-black);border-color:var(--neon-cyan);font-weight:700}
-.time-slot.disabled{opacity:0.25;cursor:not-allowed;text-decoration:line-through}
-
-.btn-submit{
-  width:100%;margin-top:2rem;padding:1.1rem 2rem;background:var(--neon-cyan);color:var(--void-black);
-  border:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.25em;
-  text-transform:uppercase;cursor:none;transition:all .4s var(--ease-quiet);position:relative;overflow:hidden
-}
-.btn-submit::before{content:'';position:absolute;inset:0;background:#fff;transform:translateX(-101%);transition:transform .5s var(--ease-quiet)}
-.btn-submit:hover::before{transform:translateX(0)}
-.btn-submit span{position:relative;z-index:1}
-
-/* ====== Cadastro ====== */
-section.cadastro{padding:8rem 2rem;max-width:1100px;margin:0 auto}
-.cadastro-container{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
-@media (max-width:900px){.cadastro-container{grid-template-columns:1fr;gap:2.5rem}}
-.cadastro-info .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--neon-cyan);display:flex;align-items:center;gap:.8rem;margin-bottom:2rem}
-.cadastro-info .label::before{content:'';width:24px;height:1px;background:var(--neon-cyan)}
-.cadastro-info h2{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(2.2rem,4vw,3.5rem);letter-spacing:-0.02em;line-height:1;margin-bottom:1.5rem}
-.cadastro-info p{color:var(--ink-soft);font-size:1rem;line-height:1.6;margin-bottom:2rem}
-.cadastro-info ul{list-style:none;border-top:1px solid var(--ink-faint);padding-top:1.5rem}
-.cadastro-info ul li{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--ink-soft);padding:.5rem 0;display:flex;align-items:center;gap:.8rem}
-.cadastro-info ul li::before{content:'+';color:var(--neon-cyan);font-weight:700}
 
 /* ====== Gallery ====== */
 section.gallery{padding:8rem 2rem;max-width:1400px;margin:0 auto}
@@ -245,10 +188,10 @@ footer{padding:4rem 2rem 2rem;border-top:1px solid var(--ink-faint);position:rel
   <div class="logo">U·M·L — BARBEARIA</div>
   <div class="links">
     <a href="#servicos">Serviços</a>
-    <a href="#agendar">Agendar</a>
     <a href="#barbeiros">Barbeiros</a>
     <a href="#galeria">Galeria</a>
     <a href="#contato">Contato</a>
+    <a href="login.html" class="login-btn">Login / Agendar</a>
   </div>
   <div class="meta">São Paulo · EST. 2019</div>
 </nav>
@@ -345,131 +288,6 @@ footer{padding:4rem 2rem 2rem;border-top:1px solid var(--ink-faint);position:rel
     </div>
   </section>
 
-  <!-- ============ BOOKING ============ -->
-  <section class="booking" id="agendar">
-    <div class="booking-container">
-      <div class="booking-info">
-        <div class="label">AGENDAMENTO — ONLINE</div>
-        <h2 class="fade-up">Reserve<br>sua cadeira.</h2>
-        <p>Sistema de agendamento direto. Escolha serviço, barbeiro, data e horário. Confirmação instantânea via WhatsApp — sem fila, sem espera, sem aplicativo.</p>
-        <div class="hours">
-          <div class="day"><span class="d">SEG</span><span class="closed">Fechado</span></div>
-          <div class="day"><span class="d">TER — SEX</span><span>09:00 — 20:00</span></div>
-          <div class="day"><span class="d">SÁBADO</span><span>08:00 — 18:00</span></div>
-          <div class="day"><span class="d">DOMINGO</span><span class="closed">Fechado</span></div>
-        </div>
-      </div>
-
-      <div class="form-box">
-        <div class="step">/ PASSO 01 — DADOS PESSOAIS</div>
-        <div class="form-row full">
-          <label>Nome completo</label>
-          <input type="text" id="b-name" placeholder="Seu nome" autocomplete="name">
-        </div>
-        <div class="form-row">
-          <div>
-            <label>Telefone / WhatsApp</label>
-            <input type="tel" id="b-phone" placeholder="(11) 90000-0000" autocomplete="tel">
-          </div>
-          <div>
-            <label>E-mail (opcional)</label>
-            <input type="email" id="b-email" placeholder="vo@email.com" autocomplete="email">
-          </div>
-        </div>
-
-        <div class="step" style="margin-top:2.5rem">/ PASSO 02 — SERVIÇO & BARBEIRO</div>
-        <div class="form-row">
-          <div>
-            <label>Serviço</label>
-            <select id="b-service">
-              <option value="" selected disabled>Selecione</option>
-              <option value="Corte Navalhado — R$65">Corte Navalhado — R$65</option>
-              <option value="Barba Completa — R$55">Barba Completa — R$55</option>
-              <option value="Corte + Barba — R$105">Corte + Barba — R$105</option>
-              <option value="Sobrancelha — R$25">Sobrancelha — R$25</option>
-              <option value="Platinado — R$220">Platinado / Descoloração — R$220</option>
-              <option value="Pigmentação — R$85">Pigmentação — R$85</option>
-            </select>
-          </div>
-          <div>
-            <label>Barbeiro</label>
-            <select id="b-barber">
-              <option value="" selected disabled>Selecione</option>
-              <option value="Lucas Martins">Lucas Martins — Master</option>
-              <option value="Rafael Costa">Rafael Costa — Senior</option>
-              <option value="André Lima">André Lima — Platinado specialist</option>
-              <option value="Qualquer">Qualquer disponível</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="step" style="margin-top:2.5rem">/ PASSO 03 — DATA & HORÁRIO</div>
-        <div class="form-row full">
-          <label>Data</label>
-          <input type="date" id="b-date">
-        </div>
-        <div class="form-row full" style="margin-top:0.5rem">
-          <label>Horário disponível</label>
-          <div class="time-grid" id="time-grid"></div>
-        </div>
-
-        <button class="btn-submit" id="book-submit"><span>Confirmar Agendamento →</span></button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ CADASTRO ============ -->
-  <section class="cadastro" id="cadastro">
-    <div class="cadastro-container">
-      <div class="cadastro-info">
-        <div class="label">CADASTRO — CLIENTE UML</div>
-        <h2 class="fade-up">Vire cliente<br>cadastrado.</h2>
-        <p>Clientes cadastrados acumulam histórico de cortes, recebem lembretes automáticos de manutenção e desbloqueiam o 10º corte com 50% de desconto. Sem taxa, sem fidelidade forçada — apenas protocolo de casa.</p>
-        <ul>
-          <li>Histórico completo de cortes e barba</li>
-          <li>Lembretes automáticos via WhatsApp</li>
-          <li>10º corte — 50% de desconto</li>
-          <li>Acesso a horários exclusivos pré-turno</li>
-          <li>Arquivo de preferências (comprimento, navalha, produtos)</li>
-        </ul>
-      </div>
-
-      <div class="form-box">
-        <div class="step">/ NOVO CLIENTE — DADOS</div>
-        <div class="form-row full">
-          <label>Nome completo</label>
-          <input type="text" id="c-name" placeholder="Seu nome" autocomplete="name">
-        </div>
-        <div class="form-row">
-          <div>
-            <label>Telefone / WhatsApp</label>
-            <input type="tel" id="c-phone" placeholder="(11) 90000-0000" autocomplete="tel">
-          </div>
-          <div>
-            <label>E-mail</label>
-            <input type="email" id="c-email" placeholder="vo@email.com" autocomplete="email">
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label>Data de nascimento</label>
-            <input type="date" id="c-birth">
-          </div>
-          <div>
-            <label>Indicado por (opcional)</label>
-            <input type="text" id="c-ref" placeholder="Nome do amigo">
-          </div>
-        </div>
-        <div class="form-row full">
-          <label>Preferências de corte (opcional)</label>
-          <textarea id="c-pref" rows="2" placeholder="Estilo favorito, comprimento, produtos, alergias..."></textarea>
-        </div>
-
-        <button class="btn-submit" id="cad-submit"><span>Concluir Cadastro →</span></button>
-      </div>
-    </div>
-  </section>
-
   <!-- ============ BARBERS ============ -->
   <section class="barbers" id="barbeiros">
     <div class="section-header">
@@ -532,11 +350,11 @@ footer{padding:4rem 2rem 2rem;border-top:1px solid var(--ink-faint);position:rel
     <div class="contact-label">CONTATO DIRETO — WHATSAPP</div>
     <h2 class="contact-title fade-up">Conversa<br>direta, sem<br><span class="accent">secretária</span>.</h2>
     <div class="contact-actions">
-      <a href="https://wa.me/5511974278632?text=Ol%C3%A1%20vim%20pelo%20site%20da%20Barbearia%20UML" target="_blank" rel="noopener" class="btn-primary">
-        <span>Chamar no WhatsApp →</span>
+      <a href="login.html" class="btn-primary">
+        <span>Entrar / Agendar Online →</span>
       </a>
-      <a href="tel:+5511974278632" class="btn-secondary">
-        <span>(11) 97427-8632</span>
+      <a href="https://wa.me/5511974278632?text=Ol%C3%A1%20vim%20pelo%20site%20da%20Barbearia%20UML" target="_blank" rel="noopener" class="btn-secondary">
+        <span>Chamar no WhatsApp</span>
       </a>
     </div>
 
@@ -565,7 +383,7 @@ footer{padding:4rem 2rem 2rem;border-top:1px solid var(--ink-faint);position:rel
       <div class="meta">
         © 2025 BARBEARIA U M L LTDA<br>
         CNPJ 32.145.098/0001-47 — SP<br>
-        <a href="#agendar">AGENDAR</a> · <a href="#contato">CONTATO</a>
+        <a href="login.html">LOGIN</a> · <a href="#contato">CONTATO</a>
       </div>
     </div>
   </footer>
@@ -823,181 +641,6 @@ if (!isCoarse && !reducedMotion) {
     });
   });
 }
-
-/* ====== Time slots ====== */
-(function(){
-  const grid = document.getElementById('time-grid');
-  if (!grid) return;
-  const slots = ['09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'];
-  // randomly disable some to feel "real"
-  const disabled = new Set([3,7,11,15]);
-  slots.forEach((s,i) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'time-slot' + (disabled.has(i) ? ' disabled' : '');
-    btn.textContent = s;
-    btn.dataset.time = s;
-    if (!disabled.has(i)) {
-      btn.addEventListener('click', () => {
-        grid.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-      });
-    }
-    grid.appendChild(btn);
-  });
-
-  // min date = today
-  const dateInput = document.getElementById('b-date');
-  if (dateInput) {
-    const today = new Date();
-    const tomorrow = new Date(today.getTime() + 86400000);
-    dateInput.min = tomorrow.toISOString().split('T')[0];
-    dateInput.addEventListener('change', () => {
-      // disable mondays
-      const d = new Date(dateInput.value);
-      if (d.getDay() === 1) {
-        showToast('Segundas estamos fechados. Escolha outro dia.');
-        dateInput.value = '';
-      }
-    });
-  }
-})();
-
-/* ====== Toast ====== */
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-/* ====== Booking submit ====== */
-document.getElementById('book-submit').addEventListener('click', async () => {
-  const name = document.getElementById('b-name').value.trim();
-  const phone = document.getElementById('b-phone').value.trim();
-  const service = document.getElementById('b-service').value;
-  const barber = document.getElementById('b-barber').value;
-  const date = document.getElementById('b-date').value;
-  const selectedTime = document.querySelector('.time-slot.selected');
-
-  if (!name) { showToast('Preencha seu nome'); return; }
-  if (!phone) { showToast('Preencha seu telefone'); return; }
-  if (!service) { showToast('Escolha um serviço'); return; }
-  if (!barber) { showToast('Escolha um barbeiro'); return; }
-  if (!date) { showToast('Escolha uma data'); return; }
-  if (!selectedTime) { showToast('Escolha um horário'); return; }
-
-  const time = selectedTime.dataset.time;
-  const niceDate = new Date(date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
-
-  // Dados que serão enviados para o Back-end
-  const dadosParaBackend = {
-    tipo: 'agendamento',
-    name, phone, service, barber, date, time
-  };
-
-  showToast('Enviando agendamento para o servidor...');
-  
-  try {
-    // 1. Envia os dados para a Netlify Function
-    const resposta = await fetch('/.netlify/functions/agendamento', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dadosParaBackend)
-    });
-
-    const resultado = await resposta.json();
-
-    if (resposta.ok) {
-      showToast('Agendamento confirmado no servidor! ✓');
-      
-      // 2. Mantemos o WhatsApp para o cliente confirmar diretamente com o barbeiro
-      const msg = `Olá! Acabei de agendar pelo site:%0A%0A👤 ${name}%0A💈 ${service}%0A✂️ Barbeiro: ${barber}%0A📅 ${niceDate}%0A🕐 ${time}%0A%0APode confirmar? 🙏`;
-      const waUrl = `https://wa.me/5511974278632?text=${msg}`;
-      
-      setTimeout(() => {
-        window.open(waUrl, '_blank');
-        // limpa o formulário
-        document.getElementById('b-name').value = '';
-        document.getElementById('b-phone').value = '';
-        document.getElementById('b-email').value = '';
-        document.getElementById('b-service').value = '';
-        document.getElementById('b-barber').value = '';
-        document.getElementById('b-date').value = '';
-        document.querySelectorAll('.time-slot.selected').forEach(b => b.classList.remove('selected'));
-      }, 1000);
-
-    } else {
-      showToast('Erro ao agendar no servidor.');
-    }
-  } catch (error) {
-    console.error('Erro:', error);
-    showToast('Erro de conexão com o servidor.');
-  }
-});
-
-/* ====== Cadastro submit ====== */
-document.getElementById('cad-submit').addEventListener('click', async () => {
-  const name = document.getElementById('c-name').value.trim();
-  const phone = document.getElementById('c-phone').value.trim();
-  const email = document.getElementById('c-email').value.trim();
-  const birth = document.getElementById('c-birth').value;
-  const ref = document.getElementById('c-ref').value.trim();
-  const pref = document.getElementById('c-pref').value.trim();
-
-  if (!name) { showToast('Preencha seu nome'); return; }
-  if (!phone) { showToast('Preencha seu telefone'); return; }
-  if (!email || !email.includes('@')) { showToast('E-mail inválido'); return; }
-  if (!birth) { showToast('Data de nascimento obrigatória'); return; }
-
-  const dadosParaBackend = {
-    tipo: 'cadastro',
-    name, phone, email, birth, ref, pref
-  };
-
-  showToast('Enviando cadastro...');
-
-  try {
-    const resposta = await fetch('/.netlify/functions/agendamento', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dadosParaBackend)
-    });
-
-    const resultado = await resposta.json();
-
-    if (resposta.ok) {
-      showToast(`Bem-vindo, ${name.split(' ')[0]}! Cadastro salvo no servidor ✓`);
-      setTimeout(() => {
-        document.getElementById('c-name').value = '';
-        document.getElementById('c-phone').value = '';
-        document.getElementById('c-email').value = '';
-        document.getElementById('c-birth').value = '';
-        document.getElementById('c-ref').value = '';
-        document.getElementById('c-pref').value = '';
-      }, 1500);
-    } else {
-      showToast('Erro ao cadastrar.');
-    }
-  } catch (error) {
-    console.error('Erro:', error);
-    showToast('Erro de conexão com o servidor.');
-  }
-});
-
-/* ====== Phone masks ====== */
-function maskPhone(input) {
-  input.addEventListener('input', e => {
-    let v = e.target.value.replace(/\D/g,'').slice(0,11);
-    if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
-    else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
-    else if (v.length > 0) v = `(${v}`;
-    e.target.value = v;
-  });
-}
-maskPhone(document.getElementById('b-phone'));
-maskPhone(document.getElementById('c-phone'));
 </script>
 
 </body>

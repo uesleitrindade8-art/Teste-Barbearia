@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barbearia U M L — Painel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;800;900&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --void-black:#050508; --void-dark:#0A0A0F;
+  --neon-cyan:#00D4FF; --neon-blue:#4D9FFF;
+  --ink-soft:rgba(255,255,255,0.7); --ink-mute:rgba(255,255,255,0.5); --ink-faint:rgba(255,255,255,0.3);
+  --ease-quiet:cubic-bezier(.22,1,.36,1);
+  --danger:#ff4d4d;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--void-black);color:#fff;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+body{padding:2rem;max-width:1200px;margin:0 auto}
+
+/* Nav do Painel */
+.painel-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:3rem;border-bottom:1px solid var(--ink-faint);padding-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+.painel-nav .logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.2rem;letter-spacing:-0.02em}
+.painel-nav .user-info{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-mute);display:flex;align-items:center;gap:1.5rem}
+.painel-nav .user-info span{color:var(--neon-cyan)}
+.btn-logout{background:transparent;border:1px solid var(--ink-faint);color:#fff;padding:.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all .3s var(--ease-quiet)}
+.btn-logout:hover{border-color:var(--danger);color:var(--danger)}
+
+/* Grid Principal */
+.painel-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:3rem}
+@media (max-width:900px){.painel-grid{grid-template-columns:1fr}}
+
+/* Formulário de Agendamento */
+.box{background:rgba(10,10,15,0.6);border:1px solid rgba(255,255,255,0.1);padding:2rem;backdrop-filter:blur(8px)}
+.box-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:1.5rem;display:flex;align-items:center;gap:.8rem}
+.box-title::before{content:'';width:16px;height:1px;background:var(--neon-cyan)}
+.form-group{margin-bottom:1.2rem}
+label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.5rem}
+input,select{
+  width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.15);
+  color:#fff;font-family:'Inter',sans-serif;font-size:1rem;padding:.6rem 0;outline:none;
+  transition:border-color .4s var(--ease-quiet)
+}
+input:focus,select:focus{border-bottom-color:var(--neon-cyan)}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300D4FF' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .5rem center}
+select option{background:var(--void-dark)}
+
+.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.5rem}
+@media (max-width:500px){.time-grid{grid-template-columns:repeat(3,1fr)}}
+.time-slot{font-family:'JetBrains Mono',monospace;font-size:.75rem;padding:.6rem .4rem;text-align:center;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--ink-soft);transition:all .3s var(--ease-quiet);cursor:pointer}
+.time-slot:hover:not(:disabled){border-color:var(--neon-cyan);color:var(--neon-cyan)}
+.time-slot.selected{background:var(--neon-cyan);color:var(--void-black);border-color:var(--neon-cyan);font-weight:700}
+.time-slot:disabled{opacity:0.2;cursor:not-allowed;text-decoration:line-through}
+
+.btn-submit{width:100%;margin-top:1.5rem;padding:1rem;background:var(--neon-cyan);color:var(--void-black);border:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;cursor:pointer;transition:all .3s var(--ease-quiet)}
+.btn-submit:hover{background:#fff}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed}
+
+/* Lista de Agendamentos */
+.agendamento-card{border:1px solid rgba(255,255,255,0.08);padding:1.5rem;margin-bottom:1rem;background:rgba(10,10,15,0.4);position:relative}
+.agendamento-card.cancelado{opacity:0.5;border-color:var(--danger)}
+.agendamento-card .topo{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
+.agendamento-card .data{font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:-0.01em}
+.agendamento-card .hora{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--neon-cyan)}
+.agendamento-card .info{font-size:.9rem;color:var(--ink-soft);line-height:1.6}
+.agendamento-card .info strong{color:#fff;font-weight:600}
+.agendamento-card .status{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;padding:.3rem .6rem;border:1px solid var(--ink-faint);margin-top:1rem}
+.agendamento-card .status.ativo{color:var(--neon-cyan);border-color:var(--neon-cyan)}
+.agendamento-card .status.cancelado{color:var(--danger);border-color:var(--danger)}
+.agendamento-card .acoes{display:flex;gap:.8rem;margin-top:1rem;flex-wrap:wrap}
+.btn-action{padding:.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;border:1px solid var(--ink-faint);background:transparent;color:#fff;cursor:pointer;transition:all .3s var(--ease-quiet);text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}
+.btn-action:hover{border-color:#fff}
+.btn-action.danger:hover{border-color:var(--danger);color:var(--danger)}
+.btn-action.whats:hover{border-color:#25D366;color:#25D366}
+
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--ink-mute);font-family:'JetBrains Mono',monospace;font-size:.9rem;letter-spacing:0.1em}
+
+#msg-painel{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--neon-cyan);margin-top:1rem;min-height:1rem}
+</style>
+</head>
+<body>
+
+<div class="painel-nav">
+  <div class="logo">U·M·L — PAINEL</div>
+  <div class="user-info">
+    Logado: <span id="user-email">...</span>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+</div>
+
+<div class="painel-grid">
+  <!-- Coluna Esquerda: Formulário -->
+  <div>
+    <div class="box">
+      <div class="box-title">Novo Agendamento</div>
+      
+      <div class="form-group">
+        <label>Serviço</label>
+        <select id="p-service">
+          <option value="" selected disabled>Selecione</option>
+          <option value="Corte Navalhado">Corte Navalhado — R$65</option>
+          <option value="Barba Completa">Barba Completa — R$55</option>
+          <option value="Corte + Barba">Corte + Barba — R$105</option>
+          <option value="Sobrancelha">Sobrancelha — R$25</option>
+          <option value="Platinado">Platinado — R$220</option>
+          <option value="Pigmentação">Pigmentação — R$85</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Barbeiro</label>
+        <select id="p-barber">
+          <option value="" selected disabled>Selecione</option>
+          <option value="Lucas Martins">Lucas Martins</option>
+          <option value="Rafael Costa">Rafael Costa</option>
+          <option value="André Lima">André Lima</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Data</label>
+        <input type="date" id="p-date">
+      </div>
+
+      <div class="form-group">
+        <label>Horários Disponíveis</label>
+        <div class="time-grid" id="p-time-grid">
+          <div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Escolha data e barbeiro</div>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="btn-agendar" onclick="criarAgendamento()">Confirmar Agendamento</button>
+      <div id="msg-painel"></div>
+    </div>
+  </div>
+
+  <!-- Coluna Direita: Lista -->
+  <div>
+    <div class="box-title" id="lista-titulo">Meus Agendamentos</div>
+    <div id="lista-agendamentos">
+      <div class="empty-state">Carregando agendamentos...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 1. Configuração Supabase
+const SUPABASE_URL = 'https://bululpefngukxmfrfnzk.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_8iEoL6G6SOiTyohLhQq74w_TV0qT3Am';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const CEO_EMAIL = 'ceo@barbeariauml.com';
+let currentUser = null;
+let isCEO = false;
+let selectedTime = null;
+
+// 2. Verificar Login ao carregar a página
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (!session) {
+    window.location.href = '/login.html';
+    return;
+  }
+  currentUser = session.user;
+  isCEO = currentUser.email === CEO_EMAIL;
+  
+  document.getElementById('user-email').textContent = currentUser.email;
+  if (isCEO) {
+    document.getElementById('lista-titulo').textContent = 'Todos os Agendamentos (CEO)';
+  }
+  
+  configurarFormulario();
+  carregarAgendamentos();
+});
+
+// 3. Logout
+function logout() {
+  supabase.auth.signOut().then(() => {
+    window.location.href = '/login.html';
+  });
+}
+
+// 4. Configurar Datas e Horários
+function configurarFormulario() {
+  const dateInput = document.getElementById('p-date');
+  const today = new Date();
+  const tomorrow = new Date(today.getTime() + 86400000);
+  dateInput.min = tomorrow.toISOString().split('T')[0];
+
+  // Bloquear segundas-feiras
+  dateInput.addEventListener('change', (e) => {
+    const d = new Date(e.target.value);
+    if (d.getDay() === 1) {
+      alert('Segundas estamos fechados. Escolha outro dia.');
+      e.target.value = '';
+      return;
+    }
+    carregarHorarios();
+  });
+
+  document.getElementById('p-barber').addEventListener('change', carregarHorarios);
+}
+
+// 5. Carregar Horários e Bloquear os ocupados no banco
+async function carregarHorarios() {
+  const date = document.getElementById('p-date').value;
+  const barber = document.getElementById('p-barber').value;
+  const grid = document.getElementById('p-time-grid');
+  
+  if (!date || !barber) return;
+
+  grid.innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Verificando horários...</div>';
+  selectedTime = null;
+
+  const slots = ['09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'];
+
+  // Consulta o banco: quais horários desse barbeiro nesse dia estão ATIVOS?
+  const { data: ocupados, error } = await supabase
+    .from('agendamentos')
+    .select('horario')
+    .eq('data', date)
+    .eq('barbeiro', barber)
+    .eq('status', 'ativo');
+
+  if (error) {
+    grid.innerHTML = '<div style="grid-column: 1 / -1; color: var(--danger);">Erro ao buscar horários.</div>';
+    return;
+  }
+
+  const horariosOcupados = ocupados.map(o => o.horario);
+  
+  grid.innerHTML = '';
+  slots.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'time-slot';
+    btn.textContent = s;
+    btn.dataset.time = s;
+    
+    if (horariosOcupados.includes(s)) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+    } else {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedTime = s;
+      });
+    }
+    grid.appendChild(btn);
+  });
+}
+
+// 6. Criar Agendamento no Banco
+async function criarAgendamento() {
+  const service = document.getElementById('p-service').value;
+  const barber = document.getElementById('p-barber').value;
+  const date = document.getElementById('p-date').value;
+  const msgEl = document.getElementById('msg-painel');
+
+  if (!service || !barber || !date || !selectedTime) {
+    msgEl.textContent = 'Preencha todos os campos e escolha um horário.';
+    msgEl.style.color = 'var(--danger)';
+    return;
+  }
+
+  const btn = document.getElementById('btn-agendar');
+  btn.disabled = true;
+  btn.textContent = 'Agendando...';
+  msgEl.textContent = '';
+
+  // Puxa o nome e telefone dos metadata do usuário
+  const nome = currentUser.user_metadata?.nome || 'Cliente';
+  const tel = currentUser.user_metadata?.telefone || 'Não informado';
+
+  const { error } = await supabase
+    .from('agendamentos')
+    .insert([
+      { 
+        user_id: currentUser.id,
+        cliente_nome: nome,
+        cliente_telefone: tel,
+        servico: service,
+        barbeiro: barber,
+        data: date,
+        horario: selectedTime,
+        status: 'ativo'
+      }
+    ]);
+
+  if (error) {
+    msgEl.textContent = 'Erro ao agendar: ' + error.message;
+    msgEl.style.color = 'var(--danger)';
+    btn.disabled = false;
+    btn.textContent = 'Confirmar Agendamento';
+  } else {
+    msgEl.textContent = 'Agendamento confirmado com sucesso!';
+    msgEl.style.color = 'var(--neon-cyan)';
+    btn.textContent = 'Confirmar Agendamento';
+    btn.disabled = false;
+    
+    // Limpar formulário e recarregar listas
+    document.getElementById('p-service').value = '';
+    document.getElementById('p-barber').value = '';
+    document.getElementById('p-date').value = '';
+    document.getElementById('p-time-grid').innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Escolha data e barbeiro</div>';
+    selectedTime = null;
+    
+    carregarAgendamentos();
+  }
+}
+
+// 7. Carregar Lista de Agendamentos
+async function carregarAgendamentos() {
+  const lista = document.getElementById('lista-agendamentos');
+  lista.innerHTML = '<div class="empty-state">Carregando...</div>';
+
+  let query = supabase.from('agendamentos').select('*').order('data', { ascending: true });
+  
+  // Se não for CEO, vê apenas os próprios agendamentos
+  if (!isCEO) {
+    query = query.eq('user_id', currentUser.id);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    lista.innerHTML = '<div class="empty-state" style="color:var(--danger);">Erro ao carregar.</div>';
+    return;
+  }
+
+  if (data.length === 0) {
+    lista.innerHTML = '<div class="empty-state">Nenhum agendamento encontrado.</div>';
+    return;
+  }
+
+  lista.innerHTML = '';
+  data.forEach(ag => {
+    const dataFormatada = new Date(ag.data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
+    const isCancelado = ag.status === 'cancelado';
+    
+    const card = document.createElement('div');
+    card.className = `agendamento-card ${isCancelado ? 'cancelado' : ''}`;
+    
+    let acoesHtml = '';
+    if (!isCancelado) {
+      // Cliente pode cancelar
+      if (!isCEO || ag.user_id === currentUser.id) {
+        acoesHtml += `<button class="btn-action danger" onclick="cancelarAgendamento('${ag.id}')">Cancelar</button>`;
+      }
+      // CEO pode mandar WhatsApp
+      if (isCEO) {
+        const telLimpo = ag.cliente_telefone.replace(/\D/g, '');
+        const msgWpp = `Olá ${ag.cliente_nome}, aqui é a Barbearia UML. Sobre seu agendamento de ${ag.servico} no dia ${dataFormatada}...`;
+        acoesHtml += `<a class="btn-action whats" href="https://wa.me/55${telLimpo}?text=${encodeURIComponent(msgWpp)}" target="_blank">WhatsApp</a>`;
+      }
+    }
+
+    card.innerHTML = `
+      <div class="topo">
+        <div class="data">${dataFormatada}</div>
+        <div class="hora">${ag.horario}</div>
+      </div>
+      <div class="info">
+        <strong>Serviço:</strong> ${ag.servico}<br>
+        <strong>Barbeiro:</strong> ${ag.barbeiro}<br>
+        ${isCEO ? `<strong>Cliente:</strong> ${ag.cliente_nome} (${ag.cliente_telefone})<br>` : ''}
+      </div>
+      <div class="status ${ag.status}">${ag.status}</div>
+      <div class="acoes">${acoesHtml}</div>
+    `;
+    lista.appendChild(card);
+  });
+}
+
+// 8. Cancelar Agendamento
+async function cancelarAgendamento(id) {
+  if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
+
+  const { error } = await supabase
+    .from('agendamentos')
+    .update({ status: 'cancelado' })
+    .eq('id', id);
+
+  if (error) {
+    alert('Erro ao cancelar.');
+  } else {
+    carregarAgendamentos();
+  }
+}
+</script>
+
+</body>
+</html>
