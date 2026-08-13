@@ -14,37 +14,39 @@
   --neon-cyan:#00D4FF; --neon-blue:#4D9FFF;
   --ink-soft:rgba(255,255,255,0.7); --ink-mute:rgba(255,255,255,0.5); --ink-faint:rgba(255,255,255,0.3);
   --ease-quiet:cubic-bezier(.22,1,.36,1);
-  --danger:#ff4d4d;
+  --danger:#ff4d4d; --gold:#FFD700;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{background:var(--void-black);color:#fff;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
 body{padding:2rem;max-width:1200px;margin:0 auto}
 
-/* Nav do Painel */
 .painel-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:3rem;border-bottom:1px solid var(--ink-faint);padding-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
 .painel-nav .logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.2rem;letter-spacing:-0.02em}
 .painel-nav .user-info{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-mute);display:flex;align-items:center;gap:1.5rem}
 .painel-nav .user-info span{color:var(--neon-cyan)}
-.btn-logout{background:transparent;border:1px solid var(--ink-faint);color:#fff;padding:.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all .3s var(--ease-quiet)}
-.btn-logout:hover{border-color:var(--danger);color:var(--danger)}
+.btn-nav{background:transparent;border:1px solid var(--ink-faint);color:#fff;padding:.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all .3s var(--ease-quiet)}
+.btn-nav:hover{border-color:var(--neon-cyan);color:var(--neon-cyan)}
+.btn-nav.danger:hover{border-color:var(--danger);color:var(--danger)}
 
-/* Grid Principal */
 .painel-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:3rem}
 @media (max-width:900px){.painel-grid{grid-template-columns:1fr}}
 
-/* Formulário de Agendamento */
-.box{background:rgba(10,10,15,0.6);border:1px solid rgba(255,255,255,0.1);padding:2rem;backdrop-filter:blur(8px)}
+/* Dashboard */
+.dashboard{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;margin-bottom:3rem}
+@media (max-width:700px){.dashboard{grid-template-columns:1fr}}
+.dash-card{background:rgba(10,10,15,0.6);border:1px solid rgba(255,255,255,0.1);padding:1.5rem;backdrop-filter:blur(8px)}
+.dash-card .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.5rem}
+.dash-card .val{font-family:'Inter',sans-serif;font-weight:800;font-size:1.8rem;color:var(--neon-cyan)}
+.dash-card .sub{font-size:.8rem;color:var(--ink-soft);margin-top:.5rem}
+
+.box{background:rgba(10,10,15,0.6);border:1px solid rgba(255,255,255,0.1);padding:2rem;backdrop-filter:blur(8px);margin-bottom:2rem}
 .box-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:1.5rem;display:flex;align-items:center;gap:.8rem}
 .box-title::before{content:'';width:16px;height:1px;background:var(--neon-cyan)}
 .painel-titulo{font-family:'Inter',sans-serif;font-weight:800;font-size:1.5rem;letter-spacing:-0.02em;margin-bottom:2rem;color:#fff}
 
 .form-group{margin-bottom:1.2rem}
 label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.5rem}
-input,select{
-  width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.15);
-  color:#fff;font-family:'Inter',sans-serif;font-size:1rem;padding:.6rem 0;outline:none;
-  transition:border-color .4s var(--ease-quiet)
-}
+input,select{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.15);color:#fff;font-family:'Inter',sans-serif;font-size:1rem;padding:.6rem 0;outline:none;transition:border-color .4s var(--ease-quiet)}
 input:focus,select:focus{border-bottom-color:var(--neon-cyan)}
 input::placeholder{color:var(--ink-faint)}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300D4FF' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .5rem center}
@@ -61,7 +63,6 @@ select option{background:var(--void-dark)}
 .btn-submit:hover{background:#fff}
 .btn-submit:disabled{opacity:0.5;cursor:not-allowed}
 
-/* Filtros e Lista de Agendamentos */
 .lista-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
 .btn-limpar{background:transparent;border:1px solid var(--danger);color:var(--danger);padding:.5rem 1rem;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all .3s var(--ease-quiet)}
 .btn-limpar:hover{background:var(--danger);color:#fff}
@@ -73,6 +74,7 @@ select option{background:var(--void-dark)}
 
 .agendamento-card{border:1px solid rgba(255,255,255,0.08);padding:1.5rem;margin-bottom:1rem;background:rgba(10,10,15,0.4);position:relative}
 .agendamento-card.cancelado{opacity:0.5;border-color:var(--danger)}
+.agendamento-card.concluido{opacity:0.7;border-color:var(--ink-faint)}
 .agendamento-card .topo{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
 .agendamento-card .data{font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:-0.01em}
 .agendamento-card .hora{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--neon-cyan)}
@@ -81,15 +83,25 @@ select option{background:var(--void-dark)}
 .agendamento-card .status{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;padding:.3rem .6rem;border:1px solid var(--ink-faint);margin-top:1rem}
 .agendamento-card .status.ativo{color:var(--neon-cyan);border-color:var(--neon-cyan)}
 .agendamento-card .status.cancelado{color:var(--danger);border-color:var(--danger)}
+.agendamento-card .status.concluido{color:#4D9FFF;border-color:#4D9FFF}
+
 .agendamento-card .acoes{display:flex;gap:.8rem;margin-top:1rem;flex-wrap:wrap}
 .btn-action{padding:.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;border:1px solid var(--ink-faint);background:transparent;color:#fff;cursor:pointer;transition:all .3s var(--ease-quiet);text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}
 .btn-action:hover{border-color:#fff}
 .btn-action.danger:hover{border-color:var(--danger);color:var(--danger)}
+.btn-action.success:hover{border-color:#25D366;color:#25D366}
 .btn-action.whats:hover{border-color:#25D366;color:#25D366}
 
-.empty-state{text-align:center;padding:4rem 2rem;color:var(--ink-mute);font-family:'JetBrains Mono',monospace;font-size:.9rem;letter-spacing:0.1em}
+.fidelidade-badge{display:block;margin-top:1rem;padding:.8rem;background:rgba(255,215,0,0.1);border:1px solid var(--gold);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.15em;text-align:center}
 
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--ink-mute);font-family:'JetBrains Mono',monospace;font-size:.9rem;letter-spacing:0.1em}
 #msg-painel{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--neon-cyan);margin-top:1rem;min-height:1rem}
+
+/* Modal Perfil */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-bg.active{display:flex}
+.modal-box{width:100%;max-width:400px;background:var(--void-dark);border:1px solid var(--neon-cyan);padding:2.5rem;position:relative}
+.modal-box .close{position:absolute;top:1rem;right:1rem;background:transparent;border:none;color:#fff;font-size:1.5rem;cursor:pointer}
 </style>
 </head>
 <body>
@@ -98,23 +110,40 @@ select option{background:var(--void-dark)}
   <div class="logo">U·M·L — PAINEL</div>
   <div class="user-info">
     Logado: <span id="user-email">...</span>
-    <button class="btn-logout" id="btn-logout">Sair</button>
+    <button class="btn-nav" id="btn-perfil">Meu Perfil</button>
+    <button class="btn-nav danger" id="btn-logout">Sair</button>
   </div>
 </div>
 
 <h1 class="painel-titulo" id="painel-titulo">Área do Cliente</h1>
 
+<!-- Dashboard Financeiro (Aparece só para o CEO) -->
+<div class="dashboard" id="dashboard-ceo" style="display:none;">
+  <div class="dash-card">
+    <div class="lbl">Cortes da Semana</div>
+    <div class="val" id="dash-cortes">0</div>
+    <div class="sub">Agendamentos nesta semana</div>
+  </div>
+  <div class="dash-card">
+    <div class="lbl">Faturamento Estimado</div>
+    <div class="val" id="dash-faturamento">R$ 0</div>
+    <div class="sub">Cortes ativos e concluídos</div>
+  </div>
+  <div class="dash-card">
+    <div class="lbl">Barbeiro Top</div>
+    <div class="val" id="dash-barbeiro" style="font-size:1.4rem;">-</div>
+    <div class="sub">Mais requisitado na casa</div>
+  </div>
+</div>
+
 <div class="painel-grid">
-  <!-- Coluna Esquerda: Formulário -->
   <div>
     <div class="box">
       <div class="box-title">Novo Agendamento</div>
-      
       <div class="form-group">
         <label>Nome do Cliente</label>
         <input type="text" id="p-cliente-nome" placeholder="Digite o nome do cliente">
       </div>
-
       <div class="form-group">
         <label>Serviço</label>
         <select id="p-service">
@@ -127,7 +156,6 @@ select option{background:var(--void-dark)}
           <option value="Pigmentação">Pigmentação — R$85</option>
         </select>
       </div>
-
       <div class="form-group">
         <label>Barbeiro</label>
         <select id="p-barber">
@@ -137,25 +165,21 @@ select option{background:var(--void-dark)}
           <option value="André Lima">André Lima</option>
         </select>
       </div>
-
       <div class="form-group">
         <label>Data</label>
         <input type="date" id="p-date">
       </div>
-
       <div class="form-group">
         <label>Horários Disponíveis</label>
         <div class="time-grid" id="p-time-grid">
           <div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Escolha data e barbeiro</div>
         </div>
       </div>
-
       <button class="btn-submit" id="btn-agendar">Confirmar Agendamento</button>
       <div id="msg-painel"></div>
     </div>
   </div>
 
-  <!-- Coluna Direita: Lista e Filtros -->
   <div>
     <div class="lista-header">
       <div class="box-title" id="lista-titulo" style="margin-bottom: 0;">Meus Agendamentos</div>
@@ -167,18 +191,10 @@ select option{background:var(--void-dark)}
         <label>Mês</label>
         <select id="filter-month">
           <option value="todos">Todos</option>
-          <option value="01">Janeiro</option>
-          <option value="02">Fevereiro</option>
-          <option value="03">Março</option>
-          <option value="04">Abril</option>
-          <option value="05">Maio</option>
-          <option value="06">Junho</option>
-          <option value="07">Julho</option>
-          <option value="08">Agosto</option>
-          <option value="09">Setembro</option>
-          <option value="10">Outubro</option>
-          <option value="11">Novembro</option>
-          <option value="12">Dezembro</option>
+          <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
+          <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
+          <option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option>
+          <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
         </select>
       </div>
       <div class="form-group">
@@ -207,6 +223,7 @@ select option{background:var(--void-dark)}
         <select id="filter-status">
           <option value="todos">Todos</option>
           <option value="ativo">Ativo</option>
+          <option value="concluido">Concluído</option>
           <option value="cancelado">Cancelado</option>
         </select>
       </div>
@@ -218,9 +235,25 @@ select option{background:var(--void-dark)}
   </div>
 </div>
 
+<!-- Modal Perfil -->
+<div class="modal-bg" id="modal-perfil">
+  <div class="modal-box">
+    <button class="close" id="close-perfil">×</button>
+    <div class="box-title" style="margin-bottom: 2rem;">Editar Meu Perfil</div>
+    <div class="form-group">
+      <label>Nome Completo</label>
+      <input type="text" id="perfil-nome">
+    </div>
+    <div class="form-group">
+      <label>Telefone / WhatsApp</label>
+      <input type="tel" id="perfil-tel" placeholder="(11) 90000-0000">
+    </div>
+    <button class="btn-submit" id="btn-salvar-perfil">Salvar Alterações</button>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', async function() {
-  // 1. Configuração Supabase
   const SUPABASE_URL = 'https://bululpefngukxmfrfnzk.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_8iEoL6G6SOiTyohLhQq74w_TV0qT3Am';
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -229,8 +262,8 @@ document.addEventListener('DOMContentLoaded', async function() {
   let currentUser = null;
   let isCEO = false;
   let selectedTime = null;
+  let allBookings = []; // Guardará todos os agendamentos para calcular estatísticas
 
-  // 2. Verificar Login ao carregar a página
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     window.location.replace('/login.html');
@@ -245,17 +278,15 @@ document.addEventListener('DOMContentLoaded', async function() {
   if (isCEO) {
     document.getElementById('painel-titulo').textContent = 'Painel Administrativo (CEO)';
     document.getElementById('lista-titulo').textContent = 'Todos os Agendamentos (CEO)';
+    document.getElementById('dashboard-ceo').style.display = 'grid';
+    document.getElementById('btn-perfil').style.display = 'none'; // CEO não precisa editar perfil de cliente
   } else {
     document.getElementById('painel-titulo').textContent = 'Área do Cliente';
     document.getElementById('lista-titulo').textContent = 'Meus Agendamentos';
-    
     const userNome = currentUser.user_metadata?.nome || '';
-    if (userNome) {
-      document.getElementById('p-cliente-nome').value = userNome;
-    }
+    if (userNome) document.getElementById('p-cliente-nome').value = userNome;
   }
 
-  // 3. Configurar Datas e Horários
   const dateInput = document.getElementById('p-date');
   const today = new Date();
   const tomorrow = new Date(today.getTime() + 86400000);
@@ -264,231 +295,217 @@ document.addEventListener('DOMContentLoaded', async function() {
   dateInput.addEventListener('change', carregarHorarios);
   document.getElementById('p-barber').addEventListener('change', carregarHorarios);
 
-  // 4. Event Listeners dos Filtros (Sempre que mudar, recarrega a lista)
-  document.getElementById('filter-month').addEventListener('change', carregarAgendamentos);
-  document.getElementById('filter-barber').addEventListener('change', carregarAgendamentos);
-  document.getElementById('filter-service').addEventListener('change', carregarAgendamentos);
-  document.getElementById('filter-status').addEventListener('change', carregarAgendamentos);
+  ['filter-month', 'filter-barber', 'filter-service', 'filter-status'].forEach(id => {
+    document.getElementById(id).addEventListener('change', renderizarLista);
+  });
 
-  // 5. Logout
   document.getElementById('btn-logout').addEventListener('click', async () => {
     await supabase.auth.signOut();
     window.location.replace('/login.html');
   });
 
-  // 6. Criar Agendamento
   document.getElementById('btn-agendar').addEventListener('click', criarAgendamento);
 
-  // 7. Limpar Histórico
   document.getElementById('btn-limpar').addEventListener('click', async () => {
-    const confirmacao = confirm('ATENÇÃO!\n\nTem certeza ABSOLUTA que deseja apagar TODOS os agendamentos do histórico?\nEsta ação NÃO PODERÁ ser desfeita.');
-    if (!confirmacao) return;
-
+    if (!confirm('ATENÇÃO!\n\nApagar TODOS os agendamentos do histórico?')) return;
     let query = supabase.from('agendamentos').delete();
+    if (!isCEO) query = query.eq('user_id', currentUser.id);
+    else query = query.in('status', ['ativo', 'cancelado', 'concluido']);
     
-    if (!isCEO) {
-      query = query.eq('user_id', currentUser.id);
-    } else {
-      query = query.in('status', ['ativo', 'cancelado']);
-    }
-
     const { error } = await query;
-
-    if (error) {
-      alert('Erro ao limpar histórico: ' + error.message);
-    } else {
-      alert('Histórico limpo com sucesso!');
-      carregarAgendamentos();
-    }
+    if (error) alert('Erro: ' + error.message);
+    else { alert('Histórico limpo!'); carregarTudo(); }
   });
 
-  // Função global para cancelar agendamento
-  window.cancelarAgendamento = async function(id) {
-    if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
-    const { error } = await supabase
-      .from('agendamentos')
-      .update({ status: 'cancelado' })
-      .eq('id', id);
+  // Perfil
+  document.getElementById('btn-perfil').addEventListener('click', () => {
+    document.getElementById('perfil-nome').value = currentUser.user_metadata?.nome || '';
+    document.getElementById('perfil-tel').value = currentUser.user_metadata?.telefone || '';
+    document.getElementById('modal-perfil').classList.add('active');
+  });
+  document.getElementById('close-perfil').addEventListener('click', () => document.getElementById('modal-perfil').classList.remove('active'));
+  document.getElementById('btn-salvar-perfil').addEventListener('click', async () => {
+    const nome = document.getElementById('perfil-nome').value.trim();
+    const tel = document.getElementById('perfil-tel').value.trim();
+    const { error } = await supabase.auth.updateUser({ data: { nome, telefone: tel } });
+    if (error) alert('Erro ao salvar.');
+    else { alert('Perfil atualizado!'); location.reload(); }
+  });
 
-    if (error) {
-      alert('Erro ao cancelar.');
-    } else {
-      carregarAgendamentos();
-    }
+  window.cancelarAgendamento = async function(id) {
+    if (!confirm('Cancelar este agendamento?')) return;
+    await supabase.from('agendamentos').update({ status: 'cancelado' }).eq('id', id);
+    carregarTudo();
   }
 
-  // 8. Carregar Horários e Bloquear os ocupados
+  window.concluirAgendamento = async function(id) {
+    if (!confirm('Marcar como CONCLUÍDO? O cliente ganhará 1 ponto na fidelidade.')) return;
+    await supabase.from('agendamentos').update({ status: 'concluido' }).eq('id', id);
+    carregarTudo();
+  }
+
   async function carregarHorarios() {
     const date = document.getElementById('p-date').value;
     const barber = document.getElementById('p-barber').value;
     const grid = document.getElementById('p-time-grid');
-    
     if (!date || !barber) return;
 
-    grid.innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Verificando horários...</div>';
+    grid.innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Verificando...</div>';
     selectedTime = null;
 
     const slots = ['09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'];
-
-    const { data: ocupados, error } = await supabase
-      .from('agendamentos')
-      .select('horario')
-      .eq('data', date)
-      .eq('barbeiro', barber)
-      .eq('status', 'ativo');
-
-    if (error) {
-      grid.innerHTML = '<div style="grid-column: 1 / -1; color: var(--danger);">Erro ao buscar horários.</div>';
-      return;
-    }
-
-    const horariosOcupados = ocupados.map(o => o.horario);
+    const { data: ocupados } = await supabase.from('agendamentos').select('horario').eq('data', date).eq('barbeiro', barber).eq('status', 'ativo');
+    const horariosOcupados = ocupados ? ocupados.map(o => o.horario) : [];
     
     grid.innerHTML = '';
     slots.forEach(s => {
       const btn = document.createElement('button');
       btn.className = 'time-slot';
       btn.textContent = s;
-      btn.dataset.time = s;
-      
       if (horariosOcupados.includes(s)) {
-        btn.disabled = true;
-        btn.classList.add('disabled');
+        btn.disabled = true; btn.classList.add('disabled');
       } else {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-          selectedTime = s;
+          btn.classList.add('selected'); selectedTime = s;
         });
       }
       grid.appendChild(btn);
     });
   }
 
-  // 9. Salvar Agendamento no Banco
   async function criarAgendamento() {
     const clienteNome = document.getElementById('p-cliente-nome').value.trim();
     const service = document.getElementById('p-service').value;
     const barber = document.getElementById('p-barber').value;
     const date = document.getElementById('p-date').value;
     const msgEl = document.getElementById('msg-painel');
-    const btn = document.getElementById('btn-agendar');
 
     if (!clienteNome || !service || !barber || !date || !selectedTime) {
-      msgEl.textContent = 'Preencha todos os campos, incluindo o nome do cliente.';
-      msgEl.style.color = 'var(--danger)';
-      return;
+      msgEl.textContent = 'Preencha todos os campos.'; msgEl.style.color = 'var(--danger)'; return;
     }
-
-    btn.disabled = true;
-    btn.textContent = 'Agendando...';
-    msgEl.textContent = '';
 
     const tel = currentUser.user_metadata?.telefone || 'Não informado';
 
-    const { error } = await supabase
-      .from('agendamentos')
-      .insert([
-        { 
-          user_id: currentUser.id,
-          cliente_nome: clienteNome,
-          cliente_telefone: tel,
-          servico: service,
-          barbeiro: barber,
-          data: date,
-          horario: selectedTime,
-          status: 'ativo'
-        }
-      ]);
+    const { error } = await supabase.from('agendamentos').insert([
+      { user_id: currentUser.id, cliente_nome: clienteNome, cliente_telefone: tel, servico: service, barbeiro: barber, data: date, horario: selectedTime, status: 'ativo' }
+    ]);
 
     if (error) {
-      msgEl.textContent = 'Erro ao agendar: ' + error.message;
-      msgEl.style.color = 'var(--danger)';
-      btn.disabled = false;
-      btn.textContent = 'Confirmar Agendamento';
+      msgEl.textContent = 'Erro: ' + error.message; msgEl.style.color = 'var(--danger)';
     } else {
-      msgEl.textContent = 'Agendamento confirmado com sucesso!';
-      msgEl.style.color = 'var(--neon-cyan)';
-      btn.textContent = 'Confirmar Agendamento';
-      btn.disabled = false;
+      msgEl.textContent = 'Agendamento confirmado!'; msgEl.style.color = 'var(--neon-cyan)';
       
+      // Dispara notificação pro CEO (Netlify Function)
+      fetch('/.netlify/functions/agendamento', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo: 'agendamento', name: clienteNome, service, barber, date, time: selectedTime })
+      }).catch(e => console.error("Erro ao avisar CEO:", e));
+
       document.getElementById('p-service').value = '';
       document.getElementById('p-barber').value = '';
       document.getElementById('p-date').value = '';
       document.getElementById('p-time-grid').innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Escolha data e barbeiro</div>';
       selectedTime = null;
+      if (isCEO) document.getElementById('p-cliente-nome').value = '';
       
-      if (isCEO) {
-        document.getElementById('p-cliente-nome').value = '';
-      }
-      
-      carregarAgendamentos();
+      carregarTudo();
     }
   }
 
-  // 10. Carregar Lista de Agendamentos COM FILTROS
-  async function carregarAgendamentos() {
-    const lista = document.getElementById('lista-agendamentos');
-    lista.innerHTML = '<div class="empty-state">Carregando...</div>';
-
-    // Pegando os valores dos filtros
-    const filterMonth = document.getElementById('filter-month').value;
-    const filterBarber = document.getElementById('filter-barber').value;
-    const filterService = document.getElementById('filter-service').value;
-    const filterStatus = document.getElementById('filter-status').value;
-
+  async function carregarTudo() {
     let query = supabase.from('agendamentos').select('*').order('data', { ascending: true });
+    if (!isCEO) query = query.eq('user_id', currentUser.id);
+    const { data } = await query;
+    allBookings = data || [];
     
-    if (!isCEO) {
-      query = query.eq('user_id', currentUser.id);
-    }
+    if (isCEO) atualizarDashboard();
+    renderizarLista();
+  }
 
-    // Aplicando filtros na requisição
-    if (filterBarber !== 'todos') query = query.eq('barbeiro', filterBarber);
-    if (filterService !== 'todos') query = query.eq('servico', filterService);
-    if (filterStatus !== 'todos') query = query.eq('status', filterStatus);
+  function atualizarDashboard() {
+    const precos = { 'Corte Navalhado': 65, 'Barba Completa': 55, 'Corte + Barba': 105, 'Sobrancelha': 25, 'Platinado': 220, 'Pigmentação': 85 };
+    let faturamento = 0;
+    let barbeirosCount = {};
+    
+    // Datas da semana atual
+    const hoje = new Date();
+    const diaSemana = hoje.getDay();
+    const segunda = new Date(hoje); segunda.setDate(hoje.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1));
+    const domingo = new Date(segunda); domingo.setDate(segunda.getDate() + 6);
+    let cortesSemana = 0;
 
-    const { data, error } = await query;
+    allBookings.forEach(ag => {
+      if (ag.status === 'ativo' || ag.status === 'concluido') {
+        faturamento += precos[ag.servico] || 0;
+        barbeirosCount[ag.barbeiro] = (barbeirosCount[ag.barbeiro] || 0) + 1;
+        
+        const dAg = new Date(ag.data + 'T00:00:00');
+        if (dAg >= segunda && dAg <= domingo) cortesSemana++;
+      }
+    });
 
-    if (error) {
-      lista.innerHTML = '<div class="empty-state" style="color:var(--danger);">Erro ao carregar.</div>';
-      return;
-    }
+    const topBarbeiro = Object.keys(barbeirosCount).reduce((a, b) => barbeirosCount[a] > barbeirosCount[b] ? a : b, '-');
 
-    // Filtro de mês é feito no JavaScript pois extrair mês no banco é mais complexo
-    let dadosFiltrados = data;
-    if (filterMonth !== 'todos') {
-      dadosFiltrados = data.filter(ag => {
+    document.getElementById('dash-cortes').textContent = cortesSemana;
+    document.getElementById('dash-faturamento').textContent = `R$ ${faturamento.toLocaleString('pt-BR')}`;
+    document.getElementById('dash-barbeiro').textContent = topBarbeiro;
+  }
+
+  function renderizarLista() {
+    const lista = document.getElementById('lista-agendamentos');
+    
+    const fMonth = document.getElementById('filter-month').value;
+    const fBarber = document.getElementById('filter-barber').value;
+    const fService = document.getElementById('filter-service').value;
+    const fStatus = document.getElementById('filter-status').value;
+
+    let dados = allBookings.filter(ag => {
+      if (fBarber !== 'todos' && ag.barbeiro !== fBarber) return false;
+      if (fService !== 'todos' && ag.servico !== fService) return false;
+      if (fStatus !== 'todos' && ag.status !== fStatus) return false;
+      if (fMonth !== 'todos') {
         const mes = new Date(ag.data + 'T00:00:00').getMonth() + 1;
-        return mes.toString().padStart(2, '0') === filterMonth;
-      });
+        if (mes.toString().padStart(2, '0') !== fMonth) return false;
+      }
+      return true;
+    });
+
+    if (dados.length === 0) {
+      lista.innerHTML = '<div class="empty-state">Nenhum agendamento encontrado.</div>'; return;
     }
 
-    if (dadosFiltrados.length === 0) {
-      lista.innerHTML = '<div class="empty-state">Nenhum agendamento encontrado para os filtros selecionados.</div>';
-      return;
-    }
+    // Conta cortes concluídos por user_id (para fidelidade)
+    let fidelidade = {};
+    allBookings.forEach(ag => {
+      if (ag.status === 'concluido') fidelidade[ag.user_id] = (fidelidade[ag.user_id] || 0) + 1;
+    });
 
     lista.innerHTML = '';
-    dadosFiltrados.forEach(ag => {
+    dados.forEach(ag => {
       const dataFormatada = new Date(ag.data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
-      const isCancelado = ag.status === 'cancelado';
-      
       const card = document.createElement('div');
-      card.className = `agendamento-card ${isCancelado ? 'cancelado' : ''}`;
+      card.className = `agendamento-card ${ag.status === 'cancelado' ? 'cancelado' : ''} ${ag.status === 'concluido' ? 'concluido' : ''}`;
       
       let acoesHtml = '';
-      if (!isCancelado) {
-        if (isCEO || ag.user_id === currentUser.id) {
-          acoesHtml += `<button class="btn-action danger" onclick="window.cancelarAgendamento('${ag.id}')">Cancelar</button>`;
-        }
+      if (ag.status === 'ativo') {
+        if (isCEO || ag.user_id === currentUser.id) acoesHtml += `<button class="btn-action danger" onclick="window.cancelarAgendamento('${ag.id}')">Cancelar</button>`;
+        if (isCEO) acoesHtml += `<button class="btn-action success" onclick="window.concluirAgendamento('${ag.id}')">Concluir</button>`;
         if (isCEO) {
           const telLimpo = ag.cliente_telefone.replace(/\D/g, '');
-          if (telLimpo && telLimpo.length >= 10) {
-            const msgWpp = `Olá ${ag.cliente_nome}, aqui é da Barbearia UML. Sobre seu agendamento de ${ag.servico} no dia ${dataFormatada}...`;
+          if (telLimpo.length >= 10) {
+            const msgWpp = `Olá ${ag.cliente_nome}, confirmando seu ${ag.servico} no dia ${dataFormatada}?`;
             acoesHtml += `<a class="btn-action whats" href="https://wa.me/55${telLimpo}?text=${encodeURIComponent(msgWpp)}" target="_blank">WhatsApp</a>`;
           }
         }
+      }
+
+      // Sistema de Fidelidade (A cada 10 cortes concluídos, libera prêmio)
+      let fidelidadeHtml = '';
+      const cortesFeitos = fidelidade[ag.user_id] || 0;
+      if (cortesFeitos > 0 && cortesFeitos % 10 === 0 && ag.status === 'ativo') {
+        fidelidadeHtml = `<div class="fidelidade-badge">🏆 CORTE PROMOCIONAL 50% LIBERADO!</div>`;
       }
 
       card.innerHTML = `
@@ -503,16 +520,15 @@ document.addEventListener('DOMContentLoaded', async function() {
           ${isCEO ? `<strong>Telefone:</strong> ${ag.cliente_telefone}<br>` : ''}
         </div>
         <div class="status ${ag.status}">${ag.status}</div>
+        ${fidelidadeHtml}
         <div class="acoes">${acoesHtml}</div>
       `;
       lista.appendChild(card);
     });
   }
 
-  // Inicia buscando os agendamentos
-  carregarAgendamentos();
+  carregarTudo();
 });
 </script>
-
 </body>
 </html>

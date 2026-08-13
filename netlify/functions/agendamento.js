@@ -1,55 +1,38 @@
 // netlify/functions/agendamento.js
 
 exports.handler = async (event) => {
-  // 1. Garante que só aceitamos requisições do tipo POST
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: "Método não permitido" }),
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: "Método não permitido" }) };
   }
 
   try {
-    // 2. Pega os dados que o site enviou e transforma em objeto JavaScript
     const dados = JSON.parse(event.body);
 
-    // 3. Aqui é o "cérebro" do back-end. 
-    // No futuro, poderíamos conectar um banco de dados aqui para salvar.
-    // Por enquanto, vamos registrar no log do Netlify para você ver que chegou.
-    console.log("Novo dado recebido do site:", dados);
-
-    // 4. Verifica que tipo de formulário foi enviado (Agendamento ou Cadastro)
-    let mensagemResposta = "";
-
     if (dados.tipo === "agendamento") {
-      mensagemResposta = `Agendamento de ${dados.nome} para ${dados.servico} com ${dados.barbeiro} recebido com sucesso!`;
+      const mensagem = `*NOVO AGENDAMENTO UML*%0A%0A👤 Cliente: ${dados.name}%0A💈 Serviço: ${dados.service}%0A✂️ Barbeiro: ${dados.barber}%0A📅 Data: ${dados.date}%0A🕐 Hora: ${dados.time}`;
       
-      // Aqui no back-end, o barbeiro poderia ser avisado por e-mail ou WhatsApp de forma automática.
+      // Número do CEO e API Key do CallMeBot
+      const ceoNumber = "5511974278632";
+      const apiKey = "3721015"; // <-- Substitua aqui
       
-    } else if (dados.tipo === "cadastro") {
-      mensagemResposta = `Cadastro do cliente ${dados.nome} realizado com sucesso!`;
-    } else {
-      mensagemResposta = "Dados recebidos.";
+      const url = `https://api.callmebot.com/whatsapp.php?phone=${ceoNumber}&text=${mensagem}&apikey=${apiKey}`;
+
+      // Tenta enviar o WhatsApp
+      if (apiKey !== "3721015") {
+        await fetch(url);
+      } else {
+        console.log("API Key não configurada. Mensagem não enviada.");
+      }
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ success: true, message: "Notificação processada." }),
+      };
     }
 
-    // 5. Retorna uma resposta de sucesso para o site
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        success: true,
-        message: mensagemResposta,
-      }),
-    };
-
+    return { statusCode: 200, body: JSON.stringify({ success: true }) };
   } catch (error) {
-    // 6. Se algo der errado (ex: dados inválidos), avisa o site
-    console.error("Erro no processamento:", error);
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ 
-        success: false, 
-        error: "Erro ao processar os dados." 
-      }),
-    };
+    console.error("Erro:", error);
+    return { statusCode: 400, body: JSON.stringify({ success: false, error: "Erro ao processar." }) };
   }
 };
