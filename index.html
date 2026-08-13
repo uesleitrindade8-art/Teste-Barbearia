@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barbearia U M L — Precision Grooming Co.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;800;900&display=swap">
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.183/build/three.module.js" } }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.13/dist/lenis.min.js"></script>
+
+<style>
+:root{
+  --void-black:#050508;
+  --void-dark:#0A0A0F;
+  --neon-cyan:#00D4FF;
+  --neon-blue:#4D9FFF;
+  --neon-soft:#9DC4FF;
+  --ink-soft:rgba(255,255,255,0.7);
+  --ink-mute:rgba(255,255,255,0.5);
+  --ink-faint:rgba(255,255,255,0.3);
+  --ease-quiet:cubic-bezier(.22,1,.36,1);
+  --ease-precise:cubic-bezier(.4,0,.2,1);
+  --ease-emphasis:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--void-black);color:#fff;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body, a, button{cursor:none}
+@media (hover:none),(pointer:coarse){body,a,button{cursor:auto}}
+#fluid-root{position:fixed;inset:0;z-index:0;pointer-events:none}
+#main-content{position:relative;z-index:1}
+
+/* ====== Custom Cursor ====== */
+#custom-cursor{
+  position:fixed;top:0;left:0;width:12px;height:12px;border-radius:50%;
+  background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:9999;
+  transition:width .3s var(--ease-precise),height .3s var(--ease-precise),opacity .3s var(--ease-precise);
+  will-change:transform
+}
+
+/* ====== Nav ====== */
+nav.top{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:1.5rem 2rem;display:flex;justify-content:space-between;align-items:center;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;
+  mix-blend-mode:difference
+}
+nav.top .logo{font-weight:700;color:#fff}
+nav.top .links{display:flex;gap:2.5rem}
+nav.top .links a{color:var(--ink-soft);text-decoration:none;transition:color .3s var(--ease-quiet)}
+nav.top .links a:hover{color:#fff}
+nav.top .meta{color:var(--ink-mute)}
+@media (max-width:768px){
+  nav.top .links{display:none}
+  nav.top{padding:1rem 1.5rem}
+}
+
+/* ====== Hero ====== */
+section.hero{
+  min-height:100vh;padding:8rem 2rem 4rem;display:flex;flex-direction:column;justify-content:space-between;
+  position:relative
+}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute)}
+.hero-top .stamp{border:1px solid var(--ink-faint);padding:.5rem .8rem;border-radius:2px}
+#hero-title{
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:clamp(3.5rem,14vw,16rem);line-height:.9;letter-spacing:-0.04em;
+  color:#fff;margin:4rem 0 2rem;word-break:break-all
+}
+#hero-title.is-decoding{text-shadow:0 0 10px rgba(0,212,255,0.5),0 0 20px rgba(0,212,255,0.3)}
+.hero-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:4rem;flex-wrap:wrap}
+.hero-bottom .tagline{max-width:380px;font-size:1rem;line-height:1.6;color:var(--ink-soft)}
+.hero-bottom .tagline strong{color:var(--neon-cyan)}
+.hero-bottom .scroll-cue{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--ink-mute);display:flex;align-items:center;gap:.6rem}
+.hero-bottom .scroll-cue .line{width:40px;height:1px;background:var(--ink-faint);position:relative;overflow:hidden}
+.hero-bottom .scroll-cue .line::after{content:'';position:absolute;left:0;top:0;width:30%;height:100%;background:var(--neon-cyan);animation:scrollLine 2.5s var(--ease-quiet) infinite}
+@keyframes scrollLine{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
+
+/* ====== Manifesto ====== */
+section.manifesto{padding:12rem 2rem;max-width:1100px;margin:0 auto}
+.manifesto-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:2.5rem;display:flex;align-items:center;gap:.8rem}
+.manifesto-label::before{content:'';width:24px;height:1px;background:var(--neon-cyan)}
+.manifesto-text{font-family:'Inter',sans-serif;font-weight:400;font-size:clamp(1.4rem,2.6vw,2.2rem);line-height:1.4;letter-spacing:-0.01em;color:#fff}
+.manifesto-text .word{display:inline-block;opacity:0;filter:blur(12px) brightness(30%);will-change:filter,opacity}
+.manifesto-text .word.accent{color:var(--neon-cyan)}
+
+/* ====== Services ====== */
+section.services{padding:8rem 2rem;max-width:1400px;margin:0 auto}
+.section-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4rem;flex-wrap:wrap;gap:2rem}
+.section-header .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--neon-cyan);display:flex;align-items:center;gap:.8rem}
+.section-header .label::before{content:'';width:24px;height:1px;background:var(--neon-cyan)}
+.section-header h2{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(2.5rem,5vw,4.5rem);letter-spacing:-0.02em;line-height:1}
+.section-header .count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);letter-spacing:0.1em}
+
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+@media (max-width:900px){.services-grid{grid-template-columns:1fr}}
+.service-card{
+  background:rgba(10,10,15,0.5);border:1px solid rgba(255,255,255,0.08);
+  padding:2.5rem 2rem;backdrop-filter:blur(8px);position:relative;overflow:hidden;
+  transition:border-color .5s var(--ease-quiet),transform .5s var(--ease-quiet)
+}
+.service-card::before{content:'';position:absolute;left:0;top:0;width:2px;height:0;background:var(--neon-cyan);transition:height .6s var(--ease-quiet)}
+.service-card:hover{border-color:rgba(0,212,255,0.4);transform:translateY(-4px)}
+.service-card:hover::before{height:100%}
+.service-card .num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);letter-spacing:0.15em;margin-bottom:2rem}
+.service-card h3{font-family:'Inter',sans-serif;font-weight:800;font-size:1.6rem;letter-spacing:-0.01em;margin-bottom:1rem}
+.service-card p{font-size:.92rem;line-height:1.6;color:var(--ink-soft);margin-bottom:2.5rem;min-height:5rem}
+.service-card .price{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;color:var(--neon-cyan);letter-spacing:-0.02em}
+.service-card .price .currency{font-size:1rem;color:var(--ink-mute);vertical-align:top;margin-right:.2rem}
+.service-card .duration{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-mute);letter-spacing:0.2em;margin-top:.5rem;text-transform:uppercase}
+
+/* ====== Booking ====== */
+section.booking{padding:8rem 2rem;max-width:1100px;margin:0 auto}
+.booking-container{display:grid;grid-template-columns:1fr 1.8fr;gap:4rem}
+@media (max-width:900px){.booking-container{grid-template-columns:1fr;gap:2.5rem}}
+.booking-info .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--neon-cyan);display:flex;align-items:center;gap:.8rem;margin-bottom:2rem}
+.booking-info .label::before{content:'';width:24px;height:1px;background:var(--neon-cyan)}
+.booking-info h2{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(2.2rem,4vw,3.5rem);letter-spacing:-0.02em;line-height:1;margin-bottom:1.5rem}
+.booking-info p{color:var(--ink-soft);font-size:1rem;line-height:1.6;margin-bottom:2rem}
+.booking-info .hours{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--ink-soft);line-height:2;border-top:1px solid var(--ink-faint);padding-top:1.5rem}
+.booking-info .hours .day{display:flex;justify-content:space-between}
+.booking-info .hours .day .d{color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.1em;font-size:.75rem}
+.booking-info .hours .closed{color:var(--ink-faint)}
+
+.form-box{background:rgba(10,10,15,0.4);border:1px solid rgba(255,255,255,0.08);padding:2.5rem;backdrop-filter:blur(8px)}
+.form-box .step{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.25em;color:var(--neon-cyan);text-transform:uppercase;margin-bottom:1.5rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.form-row.full{grid-template-columns:1fr}
+@media (max-width:600px){.form-row{grid-template-columns:1fr}}
+label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.5rem}
+input,select,textarea{
+  width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.15);
+  color:#fff;font-family:'Inter',sans-serif;font-size:1rem;padding:.7rem 0;outline:none;
+  transition:border-color .4s var(--ease-quiet)
+}
+input:focus,select:focus,textarea:focus{border-bottom-color:var(--neon-cyan)}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300D4FF' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .5rem center;padding-right:1.5rem}
+select option{background:var(--void-dark);color:#fff}
+input::placeholder,textarea::placeholder{color:var(--ink-faint)}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(0.5);cursor:none}
+input[type="date"]::-webkit-calendar-picker-indicator:hover{filter:invert(1) opacity(1)}
+
+.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.5rem}
+@media (max-width:600px){.time-grid{grid-template-columns:repeat(3,1fr)}}
+.time-slot{font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:.6rem .4rem;text-align:center;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--ink-soft);transition:all .3s var(--ease-precise);letter-spacing:0.05em}
+.time-slot:hover{border-color:var(--neon-cyan);color:var(--neon-cyan)}
+.time-slot.selected{background:var(--neon-cyan);color:var(--void-black);border-color:var(--neon-cyan);font-weight:700}
+.time-slot.disabled{opacity:0.25;cursor:not-allowed;text-decoration:line-through}
+
+.btn-submit{
+  width:100%;margin-top:2rem;padding:1.1rem 2rem;background:var(--neon-cyan);color:var(--void-black);
+  border:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.25em;
+  text-transform:uppercase;cursor:none;transition:all .4s var(--ease-quiet);position:relative;overflow:hidden
+}
+.btn-submit::before{content:'';position:absolute;inset:0;background:#fff;transform:translateX(-101%);transition:transform .5s var(--ease-quiet)}
+.btn-submit:hover::before{transform:translateX(0)}
+.btn-submit span{position:relative;z-index:1}
+
+/* ====== Cadastro ====== */
+section.cadastro{padding:8rem 2rem;max-width:1100px;margin:0 auto}
+.cadastro-container{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+@media (max-width:900px){.cadastro-container{grid-template-columns:1fr;gap:2.5rem}}
+.cadastro-info .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--neon-cyan);display:flex;align-items:center;gap:.8rem;margin-bottom:2rem}
+.cadastro-info .label::before{content:'';width:24px;height:1px;background:var(--neon-cyan)}
+.cadastro-info h2{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(2.2rem,4vw,3.5rem);letter-spacing:-0.02em;line-height:1;margin-bottom:1.5rem}
+.cadastro-info p{color:var(--ink-soft);font-size:1rem;line-height:1.6;margin-bottom:2rem}
+.cadastro-info ul{list-style:none;border-top:1px solid var(--ink-faint);padding-top:1.5rem}
+.cadastro-info ul li{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--ink-soft);padding:.5rem 0;display:flex;align-items:center;gap:.8rem}
+.cadastro-info ul li::before{content:'+';color:var(--neon-cyan);font-weight:700}
+
+/* ====== Gallery ====== */
+section.gallery{padding:8rem 2rem;max-width:1400px;margin:0 auto}
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+@media (max-width:900px){.gallery-grid{grid-template-columns:repeat(2,1fr)}}
+.gallery-item{aspect-ratio:3/4;overflow:hidden;position:relative;background:var(--void-dark)}
+.gallery-item img{width:100%;height:100%;object-fit:cover;filter:grayscale(0.4) brightness(0.85);transition:filter .6s var(--ease-quiet),transform .8s var(--ease-quiet)}
+.gallery-item:hover img{filter:grayscale(0) brightness(1);transform:scale(1.05)}
+.gallery-item .tag{position:absolute;bottom:.8rem;left:.8rem;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#fff;background:rgba(0,0,0,0.6);padding:.3rem .5rem;backdrop-filter:blur(4px)}
+
+/* ====== Barbeiros ====== */
+section.barbers{padding:8rem 2rem;max-width:1400px;margin:0 auto}
+.barbers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+@media (max-width:900px){.barbers-grid{grid-template-columns:1fr}}
+.barber-card{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--void-dark)}
+.barber-card img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(0.7);transition:filter .6s var(--ease-quiet),transform .8s var(--ease-quiet)}
+.barber-card:hover img{filter:grayscale(0) brightness(0.9);transform:scale(1.03)}
+.barber-card .info{position:absolute;left:0;right:0;bottom:0;padding:1.5rem;background:linear-gradient(transparent,rgba(0,0,0,0.85))}
+.barber-card .info .name{font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:-0.01em}
+.barber-card .info .role{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--neon-cyan);margin-top:.3rem}
+
+/* ====== Contact CTA ====== */
+section.contact{padding:10rem 2rem;max-width:1400px;margin:0 auto;text-align:center}
+.contact-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:2rem}
+.contact-title{font-family:'Inter',sans-serif;font-weight:900;font-size:clamp(2.5rem,6vw,5rem);letter-spacing:-0.03em;line-height:1;margin-bottom:3rem}
+.contact-title .accent{color:var(--neon-cyan)}
+.contact-actions{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:5rem}
+.btn-primary{display:inline-flex;align-items:center;gap:.8rem;padding:1.2rem 2.5rem;background:var(--neon-cyan);color:var(--void-black);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;transition:all .4s var(--ease-quiet);position:relative;overflow:hidden}
+.btn-primary::before{content:'';position:absolute;inset:0;background:#fff;transform:translateX(-101%);transition:transform .5s var(--ease-quiet)}
+.btn-primary:hover::before{transform:translateX(0)}
+.btn-primary span{position:relative;z-index:1;display:inline-flex;align-items:center;gap:.8rem}
+.btn-secondary{display:inline-flex;align-items:center;gap:.8rem;padding:1.2rem 2.5rem;background:transparent;color:#fff;border:1px solid var(--ink-faint);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;transition:all .4s var(--ease-quiet)}
+.btn-secondary:hover{border-color:var(--neon-cyan);color:var(--neon-cyan)}
+
+.contact-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;border-top:1px solid var(--ink-faint);padding-top:3rem;font-family:'JetBrains Mono',monospace}
+@media (max-width:700px){.contact-meta{grid-template-columns:1fr}}
+.contact-meta .item .lbl{font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.5rem}
+.contact-meta .item .val{font-size:1rem;color:#fff}
+.contact-meta .item .val a{color:#fff;text-decoration:none;transition:color .3s var(--ease-quiet)}
+.contact-meta .item .val a:hover{color:var(--neon-cyan)}
+
+/* ====== Footer ====== */
+footer{padding:4rem 2rem 2rem;border-top:1px solid var(--ink-faint);position:relative;z-index:2}
+.footer-grid{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:2rem;max-width:1400px;margin:0 auto}
+.footer-grid .logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.5rem;letter-spacing:-0.02em}
+.footer-grid .meta{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);text-align:right;line-height:1.8}
+.footer-grid .meta a{color:var(--ink-mute);text-decoration:none;transition:color .3s var(--ease-quiet)}
+.footer-grid .meta a:hover{color:var(--neon-cyan)}
+
+/* ====== Toast ====== */
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(120%);background:var(--neon-cyan);color:var(--void-black);padding:1rem 2rem;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:700;z-index:9998;transition:transform .6s var(--ease-emphasis);max-width:90vw}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ====== Animations ====== */
+.fade-up{opacity:0;transform:translateY(40px);transition:opacity 1s var(--ease-quiet),transform 1s var(--ease-quiet)}
+.fade-up.in{opacity:1;transform:translateY(0)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  #fluid-root{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="fluid-root"></div>
+<div id="custom-cursor"></div>
+
+<nav class="top">
+  <div class="logo">U·M·L — BARBEARIA</div>
+  <div class="links">
+    <a href="#servicos">Serviços</a>
+    <a href="#agendar">Agendar</a>
+    <a href="#barbeiros">Barbeiros</a>
+    <a href="#galeria">Galeria</a>
+    <a href="#contato">Contato</a>
+  </div>
+  <div class="meta">São Paulo · EST. 2019</div>
+</nav>
+
+<main id="main-content">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-top">
+      <div class="stamp">EST. 2019 — SÃO PAULO</div>
+      <div class="stamp">N° 047 / 100</div>
+    </div>
+
+    <div>
+      <h1 id="hero-title">U M L</h1>
+      <div class="hero-bottom">
+        <p class="tagline">
+          <strong>Barbearia U M L.</strong> Precisão em cada corte, frequencies de navalha calibradas por décadas de prática. Não é um corte — é um protocolo.
+        </p>
+        <div class="scroll-cue">
+          <span>SCROLL</span>
+          <div class="line"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MANIFESTO ============ -->
+  <section class="manifesto">
+    <div class="manifesto-label">MANIFESTO 01 — MÉTODO</div>
+    <p class="manifesto-text" id="manifesto-text">
+      A navalha não corta por acaso. Ela segue um protocolo. Cada cliente que senta nesta cadeira entra no mesmo fluxo: leitura do rosto, mapa de crescimento, escolha de comprimento, execução em três passos, revisão final. Sem improviso. Sem pressa. A barbearia U M L é uma estação de trabalho, não um palco — e quem senta percebe a diferença.
+    </p>
+  </section>
+
+  <!-- ============ SERVICES ============ -->
+  <section class="services" id="servicos">
+    <div class="section-header">
+      <div>
+        <div class="label">SERVIÇOS — TABELA 2025</div>
+        <h2 class="fade-up">Protocolos<br>de cadeira.</h2>
+      </div>
+      <div class="count">06 / SERVIÇOS</div>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card fade-up">
+        <div class="num">/ 01</div>
+        <h3>Corte Navalhado</h3>
+        <p>Leitura de rosto, degradê navalhado à mão, finalização com toalha quente. O protocolo base da casa.</p>
+        <div class="price"><span class="currency">R$</span>65</div>
+        <div class="duration">DURAÇÃO — 50 MIN</div>
+      </div>
+
+      <div class="service-card fade-up">
+        <div class="num">/ 02</div>
+        <h3>Barba Completa</h3>
+        <p>Toalha quente, óleo pré-barba, navalha reta, hidratante final. Ritual de barbear clássico do século XX.</p>
+        <div class="price"><span class="currency">R$</span>55</div>
+        <div class="duration">DURAÇÃO — 40 MIN</div>
+      </div>
+
+      <div class="service-card fade-up">
+        <div class="num">/ 03</div>
+        <h3>Corte + Barba</h3>
+        <p>O combo completo. Tabela de rosto inteira, sequência navalhada, finalização com bruma tônica.</p>
+        <div class="price"><span class="currency">R$</span>105</div>
+        <div class="duration">DURAÇÃO — 90 MIN</div>
+      </div>
+
+      <div class="service-card fade-up">
+        <div class="num">/ 04</div>
+        <h3>Sobrancelha</h3>
+        <p>Design navalhado à mão, sem pinça. Apenas para quem entende que o detalhe muda o rosto inteiro.</p>
+        <div class="price"><span class="currency">R$</span>25</div>
+        <div class="duration">DURAÇÃO — 15 MIN</div>
+      </div>
+
+      <div class="service-card fade-up">
+        <div class="num">/ 05</div>
+        <h3>Platinado / Descoloração</h3>
+        <p>Descoloração em ponta aberta com matizadores tonalizantes. Inclui teste de mecha e protocolo de cuidados.</p>
+        <div class="price"><span class="currency">R$</span>220</div>
+        <div class="duration">DURAÇÃO — 180 MIN</div>
+      </div>
+
+      <div class="service-card fade-up">
+        <div class="num">/ 06</div>
+        <h3>Pigmentação</h3>
+        <p>Pigmentação de barba e falhas com tonalizante semi-permanente. Cobertura natural sem comprometer o fio.</p>
+        <div class="price"><span class="currency">R$</span>85</div>
+        <div class="duration">DURAÇÃO — 60 MIN</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BOOKING ============ -->
+  <section class="booking" id="agendar">
+    <div class="booking-container">
+      <div class="booking-info">
+        <div class="label">AGENDAMENTO — ONLINE</div>
+        <h2 class="fade-up">Reserve<br>sua cadeira.</h2>
+        <p>Sistema de agendamento direto. Escolha serviço, barbeiro, data e horário. Confirmação instantânea via WhatsApp — sem fila, sem espera, sem aplicativo.</p>
+        <div class="hours">
+          <div class="day"><span class="d">SEG</span><span class="closed">Fechado</span></div>
+          <div class="day"><span class="d">TER — SEX</span><span>09:00 — 20:00</span></div>
+          <div class="day"><span class="d">SÁBADO</span><span>08:00 — 18:00</span></div>
+          <div class="day"><span class="d">DOMINGO</span><span class="closed">Fechado</span></div>
+        </div>
+      </div>
+
+      <div class="form-box">
+        <div class="step">/ PASSO 01 — DADOS PESSOAIS</div>
+        <div class="form-row full">
+          <label>Nome completo</label>
+          <input type="text" id="b-name" placeholder="Seu nome" autocomplete="name">
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Telefone / WhatsApp</label>
+            <input type="tel" id="b-phone" placeholder="(11) 90000-0000" autocomplete="tel">
+          </div>
+          <div>
+            <label>E-mail (opcional)</label>
+            <input type="email" id="b-email" placeholder="vo@email.com" autocomplete="email">
+          </div>
+        </div>
+
+        <div class="step" style="margin-top:2.5rem">/ PASSO 02 — SERVIÇO & BARBEIRO</div>
+        <div class="form-row">
+          <div>
+            <label>Serviço</label>
+            <select id="b-service">
+              <option value="" selected disabled>Selecione</option>
+              <option value="Corte Navalhado — R$65">Corte Navalhado — R$65</option>
+              <option value="Barba Completa — R$55">Barba Completa — R$55</option>
+              <option value="Corte + Barba — R$105">Corte + Barba — R$105</option>
+              <option value="Sobrancelha — R$25">Sobrancelha — R$25</option>
+              <option value="Platinado — R$220">Platinado / Descoloração — R$220</option>
+              <option value="Pigmentação — R$85">Pigmentação — R$85</option>
+            </select>
+          </div>
+          <div>
+            <label>Barbeiro</label>
+            <select id="b-barber">
+              <option value="" selected disabled>Selecione</option>
+              <option value="Lucas Martins">Lucas Martins — Master</option>
+              <option value="Rafael Costa">Rafael Costa — Senior</option>
+              <option value="André Lima">André Lima — Platinado specialist</option>
+              <option value="Qualquer">Qualquer disponível</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="step" style="margin-top:2.5rem">/ PASSO 03 — DATA & HORÁRIO</div>
+        <div class="form-row full">
+          <label>Data</label>
+          <input type="date" id="b-date">
+        </div>
+        <div class="form-row full" style="margin-top:0.5rem">
+          <label>Horário disponível</label>
+          <div class="time-grid" id="time-grid"></div>
+        </div>
+
+        <button class="btn-submit" id="book-submit"><span>Confirmar Agendamento →</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CADASTRO ============ -->
+  <section class="cadastro" id="cadastro">
+    <div class="cadastro-container">
+      <div class="cadastro-info">
+        <div class="label">CADASTRO — CLIENTE UML</div>
+        <h2 class="fade-up">Vire cliente<br>cadastrado.</h2>
+        <p>Clientes cadastrados acumulam histórico de cortes, recebem lembretes automáticos de manutenção e desbloqueiam o 10º corte com 50% de desconto. Sem taxa, sem fidelidade forçada — apenas protocolo de casa.</p>
+        <ul>
+          <li>Histórico completo de cortes e barba</li>
+          <li>Lembretes automáticos via WhatsApp</li>
+          <li>10º corte — 50% de desconto</li>
+          <li>Acesso a horários exclusivos pré-turno</li>
+          <li>Arquivo de preferências (comprimento, navalha, produtos)</li>
+        </ul>
+      </div>
+
+      <div class="form-box">
+        <div class="step">/ NOVO CLIENTE — DADOS</div>
+        <div class="form-row full">
+          <label>Nome completo</label>
+          <input type="text" id="c-name" placeholder="Seu nome" autocomplete="name">
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Telefone / WhatsApp</label>
+            <input type="tel" id="c-phone" placeholder="(11) 90000-0000" autocomplete="tel">
+          </div>
+          <div>
+            <label>E-mail</label>
+            <input type="email" id="c-email" placeholder="vo@email.com" autocomplete="email">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Data de nascimento</label>
+            <input type="date" id="c-birth">
+          </div>
+          <div>
+            <label>Indicado por (opcional)</label>
+            <input type="text" id="c-ref" placeholder="Nome do amigo">
+          </div>
+        </div>
+        <div class="form-row full">
+          <label>Preferências de corte (opcional)</label>
+          <textarea id="c-pref" rows="2" placeholder="Estilo favorito, comprimento, produtos, alergias..."></textarea>
+        </div>
+
+        <button class="btn-submit" id="cad-submit"><span>Concluir Cadastro →</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BARBERS ============ -->
+  <section class="barbers" id="barbeiros">
+    <div class="section-header">
+      <div>
+        <div class="label">EQUIPE — MÃOS DA CASA</div>
+        <h2 class="fade-up">Os três<br>da navalha.</h2>
+      </div>
+      <div class="count">03 / BARBEIROS</div>
+    </div>
+
+    <div class="barbers-grid">
+      <div class="barber-card fade-up">
+        <img src="https://picsum.photos/seed/barber-lucas-master/600/800" alt="Lucas Martins">
+        <div class="info">
+          <div class="name">Lucas Martins</div>
+          <div class="role">Master Barber — Founder</div>
+        </div>
+      </div>
+      <div class="barber-card fade-up">
+        <img src="https://picsum.photos/seed/barber-rafael-senior/600/800" alt="Rafael Costa">
+        <div class="info">
+          <div class="name">Rafael Costa</div>
+          <div class="role">Senior Barber — 8 anos</div>
+        </div>
+      </div>
+      <div class="barber-card fade-up">
+        <img src="https://picsum.photos/seed/barber-andre-platin/600/800" alt="André Lima">
+        <div class="info">
+          <div class="name">André Lima</div>
+          <div class="role">Colorista — Platinado Specialist</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GALERIA ============ -->
+  <section class="gallery" id="galeria">
+    <div class="section-header">
+      <div>
+        <div class="label">GALERIA — TRABALHOS REAIS</div>
+        <h2 class="fade-up">Cortes que<br>ficaram.</h2>
+      </div>
+      <div class="count">08 / REGISTROS</div>
+    </div>
+
+    <div class="gallery-grid">
+      <div class="gallery-item"><img src="https://picsum.photos/seed/cut-degrade-navalhado/600/800" alt=""><div class="tag">DEGRADÉ NAVALHADO</div></div>
+      <div class="gallery-item"><img src="https://picsum.photos/seed/cut-barba-risco/600/800" alt=""><div class="tag">BARBA + RISCO</div></div>
+      <div class="gallery-item"><img src="https://picsum.photos/seed/cut-platinado-bob/600/800" alt=""><div class="tag">PLATINADO — BOB</div></div>
+      <div class="gallery-item"><img src="https://picsum.photos/seed/cut-low-fade-risco/600/800" alt=""><div class="tag">LOW FADE</div></div>
+      <div class="gallery-item"><img src="https://picsum.photos/seed/cut-mid-fade-textur/600/800" alt=""><div class="tag">MID FADE TEXTURIZADO</div></div>
+      <div class="gallery-item"><img src="https://picsum.photos/seed/cut-barba-cheia/600/800" alt=""><div class="tag">BARBA CHEIA</div></div>
+      <div class="gallery-item"><img src="https://picsum.photos/seed/cut-pompadour-classic/600/800" alt=""><div class="tag">POMPADOUR CLÁSSICO</div></div>
+      <div class="gallery-item"><img src="https://picsum.photos/seed/cut-crop-texturizado/600/800" alt=""><div class="tag">CROP TEXTURIZADO</div></div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section class="contact" id="contato">
+    <div class="contact-label">CONTATO DIRETO — WHATSAPP</div>
+    <h2 class="contact-title fade-up">Conversa<br>direta, sem<br><span class="accent">secretária</span>.</h2>
+    <div class="contact-actions">
+      <a href="https://wa.me/5511974278632?text=Ol%C3%A1%20vim%20pelo%20site%20da%20Barbearia%20UML" target="_blank" rel="noopener" class="btn-primary">
+        <span>Chamar no WhatsApp →</span>
+      </a>
+      <a href="tel:+5511974278632" class="btn-secondary">
+        <span>(11) 97427-8632</span>
+      </a>
+    </div>
+
+    <div class="contact-meta">
+      <div class="item">
+        <div class="lbl">Endereço</div>
+        <div class="val">Rua Augusta, 1024 — Consolação<br>São Paulo / SP</div>
+      </div>
+      <div class="item">
+        <div class="lbl">Horário</div>
+        <div class="val">Ter — Sex: 09h às 20h<br>Sábado: 08h às 18h</div>
+      </div>
+      <div class="item">
+        <div class="lbl">Redes</div>
+        <div class="val">
+          <a href="https://wa.me/5511974278632" target="_blank">@barbearia.uml</a><br>
+          <a href="https://wa.me/5511974278632" target="_blank">/barbeariauml</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="logo">U·M·L</div>
+      <div class="meta">
+        © 2025 BARBEARIA U M L LTDA<br>
+        CNPJ 32.145.098/0001-47 — SP<br>
+        <a href="#agendar">AGENDAR</a> · <a href="#contato">CONTATO</a>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<div id="toast"></div>
+
+<!-- ============ FLUID SHADER ============ -->
+<script type="module">
+import * as THREE from 'three';
+
+const reducedMotionShader = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isCoarseShader = matchMedia('(pointer: coarse)').matches;
+
+if (!reducedMotionShader) {
+  const root = document.getElementById('fluid-root');
+  const renderer = new THREE.WebGLRenderer({ antialias:false, alpha:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setSize(innerWidth, innerHeight);
+  root.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+
+  const simRes = new THREE.Vector2(innerWidth*0.5, innerHeight*0.5);
+  const rtParams = { format: THREE.RGBAFormat, type: THREE.HalfFloatType, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter };
+  let rtA = new THREE.WebGLRenderTarget(simRes.x, simRes.y, rtParams);
+  let rtB = new THREE.WebGLRenderTarget(simRes.x, simRes.y, rtParams);
+
+  const fluidMat = new THREE.ShaderMaterial({
+    uniforms:{
+      uFluidTex:{value:null},
+      uResolution:{value:simRes},
+      iMouse:{value:new THREE.Vector4()},
+      uFluidDecay:{value:0.985},
+      uTrailLength:{value:0.97},
+    },
+    vertexShader:`varying vec2 v_uv; void main(){ v_uv=uv; gl_Position=vec4(position,1.0); }`,
+    fragmentShader:`
+      uniform sampler2D uFluidTex; uniform vec2 uResolution; uniform vec4 iMouse;
+      uniform float uFluidDecay; uniform float uTrailLength;
+      varying vec2 v_uv;
+      vec3 dec(vec3 r){ return (r-0.5)*0.8; }
+      vec3 enc(vec3 s){ return s/0.8+0.5; }
+      void main(){
+        vec2 tx = 1.0/uResolution;
+        vec3 p = dec(texture2D(uFluidTex,v_uv).rgb);
+        vec2 vel = p.rg; float ink = p.b;
+        vec3 L = dec(texture2D(uFluidTex,v_uv-vec2(tx.x,0.)).rgb);
+        vec3 R = dec(texture2D(uFluidTex,v_uv+vec2(tx.x,0.)).rgb);
+        vec3 U = dec(texture2D(uFluidTex,v_uv+vec2(0.,tx.y)).rgb);
+        vec3 D = dec(texture2D(uFluidTex,v_uv-vec2(0.,tx.y)).rgb);
+        vel = mix(vel,(L.rg+R.rg+U.rg+D.rg)*0.25,0.28);
+        ink = mix(ink,(L.b+R.b+U.b+D.b)*0.25,0.28);
+        vec3 adv = dec(texture2D(uFluidTex, v_uv - vel*tx*1.2).rgb);
+        vel = mix(vel,adv.rg,0.45); ink = mix(ink,adv.b,0.45);
+        vec2 mo = iMouse.xy - iMouse.zw;
+        float bm = exp(-pow(distance(v_uv*uResolution, iMouse.xy),2.0)*2.2e-4);
+        vel += mo*bm*0.03; ink += bm*0.09;
+        vel *= uFluidDecay; ink *= uTrailLength;
+        gl_FragColor = vec4(enc(vec3(clamp(vel,-0.4,0.4), clamp(ink,-0.4,0.4))), 1.0);
+      }
+    `
+  });
+
+  const dispMat = new THREE.ShaderMaterial({
+    uniforms:{
+      u_fluid:{value:null},
+      u_resolution:{value:new THREE.Vector2(innerWidth,innerHeight)},
+      u_time:{value:0}
+    },
+    vertexShader:`varying vec2 v_uv; void main(){ v_uv=uv; gl_Position=vec4(position,1.0); }`,
+    fragmentShader:`
+      uniform sampler2D u_fluid; uniform vec2 u_resolution; uniform float u_time;
+      varying vec2 v_uv;
+      float h(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+      float n(vec2 p){
+        vec2 i=floor(p),f=fract(p);
+        float a=h(i),b=h(i+vec2(1,0)),c=h(i+vec2(0,1)),d=h(i+vec2(1,1));
+        vec2 u=f*f*(3.-2.*f);
+        return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);
+      }
+      float fbm(vec2 p){
+        float s=0.,a=0.5,f=1.;
+        for(int i=0;i<6;i++){ s+=n(p*f)*a; a*=0.5; f*=2.; }
+        return s;
+      }
+      void main(){
+        vec3 fs = (texture2D(u_fluid, v_uv).rgb - 0.5) * 0.8;
+        vec2 uv = (v_uv + fs.rg*(0.038+0.18*fs.b))*2.0-1.0;
+        uv.x *= u_resolution.x / u_resolution.y;
+        float t = u_time*0.18;
+        vec2 mv = vec2(fbm(uv*0.5+t), fbm(uv*0.5+t+2.));
+        float p = smoothstep(0., 1., fbm(uv + mv));
+        vec3 c1 = vec3(0.020,0.025,0.035);
+        vec3 c2 = vec3(0.04,0.10,0.18);
+        vec3 c3 = vec3(0.0, 0.83, 1.0);
+        vec3 col = mix(mix(c1,c2,p), c3, p*p*0.45);
+        col += fs.b * 0.15;
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `
+  });
+
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), fluidMat);
+  scene.add(quad);
+
+  const mouse = new THREE.Vector4(0,0,0,0);
+  let lastX=0,lastY=0;
+  if (!isCoarseShader) {
+    addEventListener('mousemove', e=>{
+      const x = e.clientX * (simRes.x/innerWidth);
+      const y = (innerHeight - e.clientY) * (simRes.y/innerHeight);
+      mouse.set(x, y, lastX, lastY);
+      lastX=x; lastY=y;
+    });
+  }
+
+  function render(t){
+    dispMat.uniforms.u_time.value = t*0.001;
+    // sim step
+    quad.material = fluidMat;
+    fluidMat.uniforms.uFluidTex.value = rtA.texture;
+    fluidMat.uniforms.iMouse.value.copy(mouse);
+    renderer.setRenderTarget(rtB);
+    renderer.render(scene, camera);
+    // swap
+    [rtA, rtB] = [rtB, rtA];
+    // display
+    quad.material = dispMat;
+    dispMat.uniforms.u_fluid.value = rtA.texture;
+    renderer.setRenderTarget(null);
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  addEventListener('resize', ()=>{
+    renderer.setSize(innerWidth, innerHeight);
+    simRes.set(innerWidth*0.5, innerHeight*0.5);
+    rtA.setSize(simRes.x, simRes.y);
+    rtB.setSize(simRes.x, simRes.y);
+    dispMat.uniforms.u_resolution.value.set(innerWidth, innerHeight);
+  });
+}
+</script>
+
+<!-- ============ MAIN SCRIPTS ============ -->
+<script>
+const isCoarse = matchMedia('(pointer: coarse)').matches;
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ====== Lenis smooth scroll ====== */
+if (!reducedMotion && window.Lenis) {
+  const lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+  function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+  if (window.gsap && window.ScrollTrigger) {
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(time => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
+}
+
+/* ====== Custom Cursor ====== */
+if (!isCoarse) {
+  const cur = document.getElementById('custom-cursor');
+  const target = {x:0,y:0}, pos = {x:0,y:0};
+  let hover = false;
+  addEventListener('mousemove', e => { target.x = e.clientX; target.y = e.clientY; });
+  addEventListener('mouseover', e => {
+    const t = e.target;
+    hover = !!(t.closest('a,button,input,select,textarea,.service-card,.barber-card,.gallery-item,.time-slot'));
+  });
+  (function loop(){
+    pos.x += (target.x - pos.x) * 0.15;
+    pos.y += (target.y - pos.y) * 0.15;
+    const s = hover ? 48 : 12;
+    cur.style.transform = `translate(${pos.x - s/2}px, ${pos.y - s/2}px)`;
+    cur.style.width = cur.style.height = s + 'px';
+    cur.style.opacity = hover ? 0.6 : 1;
+    requestAnimationFrame(loop);
+  })();
+}
+
+/* ====== Hero scramble decode ====== */
+(function(){
+  const TARGET = 'U M L';
+  const CHARS = '!<>-_\\/[]{}—=+*^?#________01';
+  const el = document.getElementById('hero-title');
+  if (!el) return;
+  if (reducedMotion) { el.textContent = TARGET; return; }
+  el.classList.add('is-decoding');
+  let iter = 0; const max = TARGET.length * 8;
+  (function tick(){
+    el.textContent = TARGET.split('').map((ch,i) =>
+      i < iter/8 ? TARGET[i] :
+      ch === ' ' ? ' ' :
+      CHARS[Math.floor(Math.random()*CHARS.length)]
+    ).join('');
+    iter += 1;
+    if (iter >= max) { el.textContent = TARGET; el.classList.remove('is-decoding'); return; }
+    setTimeout(tick, 50);
+  })();
+})();
+
+/* ====== Fade-up via ScrollTrigger ====== */
+if (window.gsap && window.ScrollTrigger) {
+  gsap.registerPlugin(ScrollTrigger);
+  document.querySelectorAll('.fade-up').forEach((el,i) => {
+    gsap.fromTo(el,
+      {y:40, opacity:0},
+      {y:0, opacity:1, duration:1.2, ease:'power3.out',
+        scrollTrigger:{ trigger:el, start:'top 88%' }}
+    );
+  });
+
+  /* ====== Manifesto scrub-blur words ====== */
+  (function(){
+    const el = document.getElementById('manifesto-text');
+    if (!el) return;
+    const accentWords = ['navalha','protocolo','U M L','precisão','estação'];
+    const txt = el.textContent.trim();
+    const words = txt.split(/\s+/);
+    el.innerHTML = words.map(w => {
+      const isAcc = accentWords.some(a => w.toLowerCase().includes(a.toLowerCase()));
+      return `<span class="word${isAcc?' accent':''}">${w}</span>`;
+    }).join(' ');
+
+    gsap.timeline({
+      scrollTrigger:{ trigger:el, start:'top 82%', end:'center 55%', scrub:true }
+    }).fromTo('.manifesto-text .word',
+      { opacity:0, filter:'blur(12px) brightness(30%)' },
+      { opacity:1, filter:'blur(0px) brightness(100%)', stagger:0.04, ease:'sine.out' }
+    );
+  })();
+}
+
+/* ====== Service card 3D tilt ====== */
+if (!isCoarse && !reducedMotion) {
+  document.querySelectorAll('.service-card').forEach(card => {
+    let raf;
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left)/r.width - 0.5;
+      const y = (e.clientY - r.top)/r.height - 0.5;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        card.style.transform = `translateY(-4px) perspective(800px) rotateX(${-y*5}deg) rotateY(${x*5}deg)`;
+      });
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+}
+
+/* ====== Time slots ====== */
+(function(){
+  const grid = document.getElementById('time-grid');
+  if (!grid) return;
+  const slots = ['09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'];
+  // randomly disable some to feel "real"
+  const disabled = new Set([3,7,11,15]);
+  slots.forEach((s,i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'time-slot' + (disabled.has(i) ? ' disabled' : '');
+    btn.textContent = s;
+    btn.dataset.time = s;
+    if (!disabled.has(i)) {
+      btn.addEventListener('click', () => {
+        grid.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    }
+    grid.appendChild(btn);
+  });
+
+  // min date = today
+  const dateInput = document.getElementById('b-date');
+  if (dateInput) {
+    const today = new Date();
+    const tomorrow = new Date(today.getTime() + 86400000);
+    dateInput.min = tomorrow.toISOString().split('T')[0];
+    dateInput.addEventListener('change', () => {
+      // disable mondays
+      const d = new Date(dateInput.value);
+      if (d.getDay() === 1) {
+        showToast('Segundas estamos fechados. Escolha outro dia.');
+        dateInput.value = '';
+      }
+    });
+  }
+})();
+
+/* ====== Toast ====== */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ====== Booking submit ====== */
+document.getElementById('book-submit').addEventListener('click', async () => {
+  const name = document.getElementById('b-name').value.trim();
+  const phone = document.getElementById('b-phone').value.trim();
+  const service = document.getElementById('b-service').value;
+  const barber = document.getElementById('b-barber').value;
+  const date = document.getElementById('b-date').value;
+  const selectedTime = document.querySelector('.time-slot.selected');
+
+  if (!name) { showToast('Preencha seu nome'); return; }
+  if (!phone) { showToast('Preencha seu telefone'); return; }
+  if (!service) { showToast('Escolha um serviço'); return; }
+  if (!barber) { showToast('Escolha um barbeiro'); return; }
+  if (!date) { showToast('Escolha uma data'); return; }
+  if (!selectedTime) { showToast('Escolha um horário'); return; }
+
+  const time = selectedTime.dataset.time;
+  const niceDate = new Date(date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
+
+  // Dados que serão enviados para o Back-end
+  const dadosParaBackend = {
+    tipo: 'agendamento',
+    name, phone, service, barber, date, time
+  };
+
+  showToast('Enviando agendamento para o servidor...');
+  
+  try {
+    // 1. Envia os dados para a Netlify Function
+    const resposta = await fetch('/.netlify/functions/agendamento', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dadosParaBackend)
+    });
+
+    const resultado = await resposta.json();
+
+    if (resposta.ok) {
+      showToast('Agendamento confirmado no servidor! ✓');
+      
+      // 2. Mantemos o WhatsApp para o cliente confirmar diretamente com o barbeiro
+      const msg = `Olá! Acabei de agendar pelo site:%0A%0A👤 ${name}%0A💈 ${service}%0A✂️ Barbeiro: ${barber}%0A📅 ${niceDate}%0A🕐 ${time}%0A%0APode confirmar? 🙏`;
+      const waUrl = `https://wa.me/5511974278632?text=${msg}`;
+      
+      setTimeout(() => {
+        window.open(waUrl, '_blank');
+        // limpa o formulário
+        document.getElementById('b-name').value = '';
+        document.getElementById('b-phone').value = '';
+        document.getElementById('b-email').value = '';
+        document.getElementById('b-service').value = '';
+        document.getElementById('b-barber').value = '';
+        document.getElementById('b-date').value = '';
+        document.querySelectorAll('.time-slot.selected').forEach(b => b.classList.remove('selected'));
+      }, 1000);
+
+    } else {
+      showToast('Erro ao agendar no servidor.');
+    }
+  } catch (error) {
+    console.error('Erro:', error);
+    showToast('Erro de conexão com o servidor.');
+  }
+});
+
+/* ====== Cadastro submit ====== */
+document.getElementById('cad-submit').addEventListener('click', async () => {
+  const name = document.getElementById('c-name').value.trim();
+  const phone = document.getElementById('c-phone').value.trim();
+  const email = document.getElementById('c-email').value.trim();
+  const birth = document.getElementById('c-birth').value;
+  const ref = document.getElementById('c-ref').value.trim();
+  const pref = document.getElementById('c-pref').value.trim();
+
+  if (!name) { showToast('Preencha seu nome'); return; }
+  if (!phone) { showToast('Preencha seu telefone'); return; }
+  if (!email || !email.includes('@')) { showToast('E-mail inválido'); return; }
+  if (!birth) { showToast('Data de nascimento obrigatória'); return; }
+
+  const dadosParaBackend = {
+    tipo: 'cadastro',
+    name, phone, email, birth, ref, pref
+  };
+
+  showToast('Enviando cadastro...');
+
+  try {
+    const resposta = await fetch('/.netlify/functions/agendamento', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dadosParaBackend)
+    });
+
+    const resultado = await resposta.json();
+
+    if (resposta.ok) {
+      showToast(`Bem-vindo, ${name.split(' ')[0]}! Cadastro salvo no servidor ✓`);
+      setTimeout(() => {
+        document.getElementById('c-name').value = '';
+        document.getElementById('c-phone').value = '';
+        document.getElementById('c-email').value = '';
+        document.getElementById('c-birth').value = '';
+        document.getElementById('c-ref').value = '';
+        document.getElementById('c-pref').value = '';
+      }, 1500);
+    } else {
+      showToast('Erro ao cadastrar.');
+    }
+  } catch (error) {
+    console.error('Erro:', error);
+    showToast('Erro de conexão com o servidor.');
+  }
+});
+
+/* ====== Phone masks ====== */
+function maskPhone(input) {
+  input.addEventListener('input', e => {
+    let v = e.target.value.replace(/\D/g,'').slice(0,11);
+    if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+    else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+    else if (v.length > 0) v = `(${v}`;
+    e.target.value = v;
+  });
+}
+maskPhone(document.getElementById('b-phone'));
+maskPhone(document.getElementById('c-phone'));
+</script>
+
+</body>
+</html>
