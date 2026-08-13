@@ -62,6 +62,10 @@ select option{background:var(--void-dark)}
 .btn-submit:disabled{opacity:0.5;cursor:not-allowed}
 
 /* Lista de Agendamentos */
+.lista-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+.btn-limpar{background:transparent;border:1px solid var(--danger);color:var(--danger);padding:.5rem 1rem;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all .3s var(--ease-quiet)}
+.btn-limpar:hover{background:var(--danger);color:#fff}
+
 .agendamento-card{border:1px solid rgba(255,255,255,0.08);padding:1.5rem;margin-bottom:1rem;background:rgba(10,10,15,0.4);position:relative}
 .agendamento-card.cancelado{opacity:0.5;border-color:var(--danger)}
 .agendamento-card .topo{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
@@ -148,7 +152,10 @@ select option{background:var(--void-dark)}
 
   <!-- Coluna Direita: Lista -->
   <div>
-    <div class="box-title" id="lista-titulo">Meus Agendamentos</div>
+    <div class="lista-header">
+      <div class="box-title" id="lista-titulo" style="margin-bottom: 0;">Meus Agendamentos</div>
+      <button class="btn-limpar" id="btn-limpar">Limpar Histórico</button>
+    </div>
     <div id="lista-agendamentos">
       <div class="empty-state">Carregando agendamentos...</div>
     </div>
@@ -200,7 +207,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   const tomorrow = new Date(today.getTime() + 86400000);
   dateInput.min = tomorrow.toISOString().split('T')[0];
 
-  // Carregar horários quando mudar a data (Removido bloqueio de Segundas)
+  // Carregar horários quando mudar a data
   dateInput.addEventListener('change', carregarHorarios);
 
   document.getElementById('p-barber').addEventListener('change', carregarHorarios);
@@ -213,6 +220,28 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   // 5. Criar Agendamento
   document.getElementById('btn-agendar').addEventListener('click', criarAgendamento);
+
+  // 6. Limpar Histórico
+  document.getElementById('btn-limpar').addEventListener('click', async () => {
+    const confirmacao = confirm('ATENÇÃO!\n\nTem certeza ABSOLUTA que deseja apagar TODOS os agendamentos do histórico?\nEsta ação NÃO PODERÁ ser desfeita.');
+    if (!confirmacao) return;
+
+    let query = supabase.from('agendamentos').delete();
+    
+    // Se for cliente, apaga apenas os próprios. Se for CEO, apaga tudo.
+    if (!isCEO) {
+      query = query.eq('user_id', currentUser.id);
+    }
+
+    const { error } = await query;
+
+    if (error) {
+      alert('Erro ao limpar histórico: ' + error.message);
+    } else {
+      alert('Histórico limpo com sucesso!');
+      carregarAgendamentos();
+    }
+  });
 
   // Funções globais para os botões dinâmicos (cancelar)
   window.cancelarAgendamento = async function(id) {
@@ -229,7 +258,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   }
 
-  // 6. Carregar Horários e Bloquear os ocupados
+  // 7. Carregar Horários e Bloquear os ocupados
   async function carregarHorarios() {
     const date = document.getElementById('p-date').value;
     const barber = document.getElementById('p-barber').value;
@@ -277,7 +306,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
   }
 
-  // 7. Salvar Agendamento no Banco
+  // 8. Salvar Agendamento no Banco
   async function criarAgendamento() {
     const clienteNome = document.getElementById('p-cliente-nome').value.trim();
     const service = document.getElementById('p-service').value;
@@ -340,7 +369,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   }
 
-  // 8. Carregar Lista de Agendamentos
+  // 9. Carregar Lista de Agendamentos
   async function carregarAgendamentos() {
     const lista = document.getElementById('lista-agendamentos');
     lista.innerHTML = '<div class="empty-state">Carregando...</div>';
