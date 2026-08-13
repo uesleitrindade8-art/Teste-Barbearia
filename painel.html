@@ -61,10 +61,15 @@ select option{background:var(--void-dark)}
 .btn-submit:hover{background:#fff}
 .btn-submit:disabled{opacity:0.5;cursor:not-allowed}
 
-/* Lista de Agendamentos */
+/* Filtros e Lista de Agendamentos */
 .lista-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
 .btn-limpar{background:transparent;border:1px solid var(--danger);color:var(--danger);padding:.5rem 1rem;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all .3s var(--ease-quiet)}
 .btn-limpar:hover{background:var(--danger);color:#fff}
+
+.filtros-box{display:grid;grid-template-columns:repeat(4, 1fr);gap:1rem;margin-bottom:1.5rem;background:rgba(255,255,255,0.03);padding:1rem;border:1px solid rgba(255,255,255,0.05)}
+@media (max-width:700px){.filtros-box{grid-template-columns:1fr 1fr}}
+@media (max-width:400px){.filtros-box{grid-template-columns:1fr}}
+.filtros-box .form-group{margin:0}
 
 .agendamento-card{border:1px solid rgba(255,255,255,0.08);padding:1.5rem;margin-bottom:1rem;background:rgba(10,10,15,0.4);position:relative}
 .agendamento-card.cancelado{opacity:0.5;border-color:var(--danger)}
@@ -150,12 +155,63 @@ select option{background:var(--void-dark)}
     </div>
   </div>
 
-  <!-- Coluna Direita: Lista -->
+  <!-- Coluna Direita: Lista e Filtros -->
   <div>
     <div class="lista-header">
       <div class="box-title" id="lista-titulo" style="margin-bottom: 0;">Meus Agendamentos</div>
       <button class="btn-limpar" id="btn-limpar">Limpar Histórico</button>
     </div>
+
+    <div class="filtros-box">
+      <div class="form-group">
+        <label>Mês</label>
+        <select id="filter-month">
+          <option value="todos">Todos</option>
+          <option value="01">Janeiro</option>
+          <option value="02">Fevereiro</option>
+          <option value="03">Março</option>
+          <option value="04">Abril</option>
+          <option value="05">Maio</option>
+          <option value="06">Junho</option>
+          <option value="07">Julho</option>
+          <option value="08">Agosto</option>
+          <option value="09">Setembro</option>
+          <option value="10">Outubro</option>
+          <option value="11">Novembro</option>
+          <option value="12">Dezembro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Barbeiro</label>
+        <select id="filter-barber">
+          <option value="todos">Todos</option>
+          <option value="Lucas Martins">Lucas Martins</option>
+          <option value="Rafael Costa">Rafael Costa</option>
+          <option value="André Lima">André Lima</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Serviço</label>
+        <select id="filter-service">
+          <option value="todos">Todos</option>
+          <option value="Corte Navalhado">Corte Navalhado</option>
+          <option value="Barba Completa">Barba Completa</option>
+          <option value="Corte + Barba">Corte + Barba</option>
+          <option value="Sobrancelha">Sobrancelha</option>
+          <option value="Platinado">Platinado</option>
+          <option value="Pigmentação">Pigmentação</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="filter-status">
+          <option value="todos">Todos</option>
+          <option value="ativo">Ativo</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+    </div>
+
     <div id="lista-agendamentos">
       <div class="empty-state">Carregando agendamentos...</div>
     </div>
@@ -174,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   let isCEO = false;
   let selectedTime = null;
 
-  // 2. Verificar Login ao carregar a página usando replace para evitar loops
+  // 2. Verificar Login ao carregar a página
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     window.location.replace('/login.html');
@@ -186,7 +242,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   document.getElementById('user-email').textContent = currentUser.email;
   
-  // Diferenciação visual entre CEO e Cliente
   if (isCEO) {
     document.getElementById('painel-titulo').textContent = 'Painel Administrativo (CEO)';
     document.getElementById('lista-titulo').textContent = 'Todos os Agendamentos (CEO)';
@@ -194,7 +249,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('painel-titulo').textContent = 'Área do Cliente';
     document.getElementById('lista-titulo').textContent = 'Meus Agendamentos';
     
-    // Auto-preenche o nome do cliente logado
     const userNome = currentUser.user_metadata?.nome || '';
     if (userNome) {
       document.getElementById('p-cliente-nome').value = userNome;
@@ -207,33 +261,34 @@ document.addEventListener('DOMContentLoaded', async function() {
   const tomorrow = new Date(today.getTime() + 86400000);
   dateInput.min = tomorrow.toISOString().split('T')[0];
 
-  // Carregar horários quando mudar a data
   dateInput.addEventListener('change', carregarHorarios);
-
   document.getElementById('p-barber').addEventListener('change', carregarHorarios);
 
-  // 4. Logout
+  // 4. Event Listeners dos Filtros (Sempre que mudar, recarrega a lista)
+  document.getElementById('filter-month').addEventListener('change', carregarAgendamentos);
+  document.getElementById('filter-barber').addEventListener('change', carregarAgendamentos);
+  document.getElementById('filter-service').addEventListener('change', carregarAgendamentos);
+  document.getElementById('filter-status').addEventListener('change', carregarAgendamentos);
+
+  // 5. Logout
   document.getElementById('btn-logout').addEventListener('click', async () => {
     await supabase.auth.signOut();
     window.location.replace('/login.html');
   });
 
-  // 5. Criar Agendamento
+  // 6. Criar Agendamento
   document.getElementById('btn-agendar').addEventListener('click', criarAgendamento);
 
-  // 6. Limpar Histórico
+  // 7. Limpar Histórico
   document.getElementById('btn-limpar').addEventListener('click', async () => {
     const confirmacao = confirm('ATENÇÃO!\n\nTem certeza ABSOLUTA que deseja apagar TODOS os agendamentos do histórico?\nEsta ação NÃO PODERÁ ser desfeita.');
     if (!confirmacao) return;
 
     let query = supabase.from('agendamentos').delete();
     
-    // Se for cliente, apaga apenas os próprios.
     if (!isCEO) {
       query = query.eq('user_id', currentUser.id);
     } else {
-      // Para o CEO apagar tudo, precisamos contornar a trava do Supabase (que exige um WHERE).
-      // Filtramos por todos os status possíveis, o que tecnicamente atende a exigência do WHERE e apaga tudo.
       query = query.in('status', ['ativo', 'cancelado']);
     }
 
@@ -247,7 +302,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   });
 
-  // Funções globais para os botões dinâmicos (cancelar)
+  // Função global para cancelar agendamento
   window.cancelarAgendamento = async function(id) {
     if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
     const { error } = await supabase
@@ -262,7 +317,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   }
 
-  // 7. Carregar Horários e Bloquear os ocupados
+  // 8. Carregar Horários e Bloquear os ocupados
   async function carregarHorarios() {
     const date = document.getElementById('p-date').value;
     const barber = document.getElementById('p-barber').value;
@@ -310,7 +365,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
   }
 
-  // 8. Salvar Agendamento no Banco
+  // 9. Salvar Agendamento no Banco
   async function criarAgendamento() {
     const clienteNome = document.getElementById('p-cliente-nome').value.trim();
     const service = document.getElementById('p-service').value;
@@ -357,14 +412,12 @@ document.addEventListener('DOMContentLoaded', async function() {
       btn.textContent = 'Confirmar Agendamento';
       btn.disabled = false;
       
-      // Limpar formulário
       document.getElementById('p-service').value = '';
       document.getElementById('p-barber').value = '';
       document.getElementById('p-date').value = '';
       document.getElementById('p-time-grid').innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Escolha data e barbeiro</div>';
       selectedTime = null;
       
-      // Se for CEO, limpa o campo de nome. Se for cliente, mantém o próprio nome.
       if (isCEO) {
         document.getElementById('p-cliente-nome').value = '';
       }
@@ -373,17 +426,27 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   }
 
-  // 9. Carregar Lista de Agendamentos
+  // 10. Carregar Lista de Agendamentos COM FILTROS
   async function carregarAgendamentos() {
     const lista = document.getElementById('lista-agendamentos');
     lista.innerHTML = '<div class="empty-state">Carregando...</div>';
 
+    // Pegando os valores dos filtros
+    const filterMonth = document.getElementById('filter-month').value;
+    const filterBarber = document.getElementById('filter-barber').value;
+    const filterService = document.getElementById('filter-service').value;
+    const filterStatus = document.getElementById('filter-status').value;
+
     let query = supabase.from('agendamentos').select('*').order('data', { ascending: true });
     
-    // Se não for CEO, vê apenas os próprios agendamentos
     if (!isCEO) {
       query = query.eq('user_id', currentUser.id);
     }
+
+    // Aplicando filtros na requisição
+    if (filterBarber !== 'todos') query = query.eq('barbeiro', filterBarber);
+    if (filterService !== 'todos') query = query.eq('servico', filterService);
+    if (filterStatus !== 'todos') query = query.eq('status', filterStatus);
 
     const { data, error } = await query;
 
@@ -392,13 +455,22 @@ document.addEventListener('DOMContentLoaded', async function() {
       return;
     }
 
-    if (data.length === 0) {
-      lista.innerHTML = '<div class="empty-state">Nenhum agendamento encontrado.</div>';
+    // Filtro de mês é feito no JavaScript pois extrair mês no banco é mais complexo
+    let dadosFiltrados = data;
+    if (filterMonth !== 'todos') {
+      dadosFiltrados = data.filter(ag => {
+        const mes = new Date(ag.data + 'T00:00:00').getMonth() + 1;
+        return mes.toString().padStart(2, '0') === filterMonth;
+      });
+    }
+
+    if (dadosFiltrados.length === 0) {
+      lista.innerHTML = '<div class="empty-state">Nenhum agendamento encontrado para os filtros selecionados.</div>';
       return;
     }
 
     lista.innerHTML = '';
-    data.forEach(ag => {
+    dadosFiltrados.forEach(ag => {
       const dataFormatada = new Date(ag.data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
       const isCancelado = ag.status === 'cancelado';
       
@@ -407,11 +479,9 @@ document.addEventListener('DOMContentLoaded', async function() {
       
       let acoesHtml = '';
       if (!isCancelado) {
-        // Cliente pode cancelar o próprio. CEO pode cancelar qualquer um.
         if (isCEO || ag.user_id === currentUser.id) {
           acoesHtml += `<button class="btn-action danger" onclick="window.cancelarAgendamento('${ag.id}')">Cancelar</button>`;
         }
-        // CEO tem botão de WhatsApp para mandar mensagem direto pro cliente
         if (isCEO) {
           const telLimpo = ag.cliente_telefone.replace(/\D/g, '');
           if (telLimpo && telLimpo.length >= 10) {
