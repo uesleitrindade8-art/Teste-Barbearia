@@ -16,11 +16,12 @@
   --neon-cyan:#00D4FF; --neon-blue:#4D9FFF;
   --ink-soft:rgba(255,255,255,0.7); --ink-mute:rgba(255,255,255,0.5); --ink-faint:rgba(255,255,255,0.3);
   --ease-quiet:cubic-bezier(.22,1,.36,1);
+  --danger:#ff4d4d;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{background:var(--void-black);color:#fff;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh}
 body{display:flex;align-items:center;justify-content:center;padding:2rem}
-a{color:var(--neon-cyan);text-decoration:none}
+a{color:var(--neon-cyan);text-decoration:none;cursor:pointer}
 
 .login-box{
   width:100%;max-width:420px;background:rgba(10,10,15,0.6);
@@ -55,6 +56,7 @@ a{color:var(--neon-cyan);text-decoration:none}
   font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;
   text-transform:uppercase;color:var(--ink-mute);transition:color .3s var(--ease-quiet);
   border-bottom:2px solid transparent;margin-bottom:-1px;
+  background:transparent;border-left:none;border-right:none;border-top:none;width:100%;
 }
 .tab.active{color:var(--neon-cyan);border-bottom-color:var(--neon-cyan)}
 
@@ -77,8 +79,8 @@ input::placeholder{color:var(--ink-faint)}
 .btn:hover{background:#fff}
 .btn:disabled{opacity:0.5;cursor:not-allowed}
 
-.msg{margin-top:1rem;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-align:center;color:var(--neon-cyan)}
-.msg.error{color:#ff4d4d}
+.msg{margin-top:1rem;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-align:center;color:var(--neon-cyan);min-height: 1rem;}
+.msg.error{color:var(--danger)}
 
 .info-box{
   margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--ink-faint);
@@ -96,8 +98,8 @@ input::placeholder{color:var(--ink-faint)}
   <div class="title" id="form-title">Acesse sua conta</div>
   
   <div class="tabs">
-    <div class="tab active" id="tab-login" onclick="switchTab('login')">LOGIN</div>
-    <div class="tab" id="tab-cad" onclick="switchTab('cad')">CADASTRO</div>
+    <button class="tab active" id="tab-login">LOGIN</button>
+    <button class="tab" id="tab-cad">CADASTRO</button>
   </div>
 
   <!-- Formulário de Login -->
@@ -107,7 +109,7 @@ input::placeholder{color:var(--ink-faint)}
     <input type="email" id="login-email" placeholder="seu@email.com">
     <label style="margin-top:1rem">Senha</label>
     <input type="password" id="login-pass" placeholder="••••••••">
-    <button class="btn" id="btn-login" onclick="fazerLogin()">Entrar →</button>
+    <button class="btn" id="btn-login">Entrar →</button>
     <div class="msg" id="msg-login"></div>
   </div>
 
@@ -122,7 +124,7 @@ input::placeholder{color:var(--ink-faint)}
     <input type="email" id="cad-email" placeholder="vo@email.com">
     <label style="margin-top:1rem">Senha (mínimo 6 caracteres)</label>
     <input type="password" id="cad-pass" placeholder="••••••••">
-    <button class="btn" id="btn-cad" onclick="cadastrar()">Criar Conta →</button>
+    <button class="btn" id="btn-cad">Criar Conta →</button>
     <div class="msg" id="msg-cad"></div>
   </div>
 
@@ -132,137 +134,151 @@ input::placeholder{color:var(--ink-faint)}
 </div>
 
 <script>
-// 1. Configuração do Supabase com suas chaves
-const SUPABASE_URL = 'bululpefngukxmfrfnzk';
-const SUPABASE_KEY = 'sb_publishable_8iEoL6G6SOiTyohLhQq74w_TV0qT3Am';
+document.addEventListener('DOMContentLoaded', function() {
+    
+  // 1. Configuração do Supabase (URL corrigida)
+  const SUPABASE_URL = 'https://bululpefngukxmfrfnzk.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_8iEoL6G6SOiTyohLhQq74w_TV0qT3Am';
 
-let supabase = null;
-try {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-} catch (e) {
-  console.error("Erro ao carregar Supabase:", e);
-}
-
-// 2. Verificar se já está logado ao carregar a página
-if (supabase) {
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) {
-      window.location.href = 'painel.html'; // removido a barra inicial
-    }
-  });
-}
-
-// 3. Alternar abas Login/Cadastro
-function switchTab(tab) {
-  if (tab === 'login') {
-    document.getElementById('tab-login').classList.add('active');
-    document.getElementById('tab-cad').classList.remove('active');
-    document.getElementById('form-login').classList.add('active');
-    document.getElementById('form-cad').classList.remove('active');
-    document.getElementById('form-title').textContent = 'Acesse sua conta';
-  } else {
-    document.getElementById('tab-cad').classList.add('active');
-    document.getElementById('tab-login').classList.remove('active');
-    document.getElementById('form-cad').classList.add('active');
-    document.getElementById('form-login').classList.remove('active');
-    document.getElementById('form-title').textContent = 'Crie sua conta';
-  }
-}
-
-// 4. Função de Login
-async function fazerLogin() {
-  const btn = document.getElementById('btn-login');
-  const msg = document.getElementById('msg-login');
-  const email = document.getElementById('login-email').value;
-  const pass = document.getElementById('login-pass').value;
-
-  if (!email || !pass) { 
-    msg.textContent = "Preencha e-mail e senha."; 
-    msg.className = "msg error"; 
-    return; 
-  }
-  
-  btn.disabled = true;
-  btn.textContent = "Verificando...";
-  msg.textContent = "";
-
+  let supabase = null;
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: pass,
-    });
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  } catch (e) {
+    console.error("Erro ao inicializar Supabase:", e);
+    alert("Erro ao conectar com o banco de dados. Verifique o console.");
+  }
 
-    if (error) {
-      msg.textContent = "Erro: " + error.message;
+  // 2. Verificar se já está logado ao carregar a página
+  if (supabase) {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        window.location.href = 'painel.html';
+      }
+    });
+  }
+
+  // 3. Alternar abas Login/Cadastro
+  const tabLogin = document.getElementById('tab-login');
+  const tabCad = document.getElementById('tab-cad');
+  const formLogin = document.getElementById('form-login');
+  const formCad = document.getElementById('form-cad');
+  const formTitle = document.getElementById('form-title');
+
+  tabLogin.addEventListener('click', () => {
+    tabLogin.classList.add('active');
+    tabCad.classList.remove('active');
+    formLogin.classList.add('active');
+    formCad.classList.remove('active');
+    formTitle.textContent = 'Acesse sua conta';
+  });
+
+  tabCad.addEventListener('click', () => {
+    tabCad.classList.add('active');
+    tabLogin.classList.remove('active');
+    formCad.classList.add('active');
+    formLogin.classList.remove('active');
+    formTitle.textContent = 'Crie sua conta';
+  });
+
+  // 4. Função de Login
+  document.getElementById('btn-login').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-login');
+    const msg = document.getElementById('msg-login');
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-pass').value;
+
+    if (!email || !pass) { 
+      msg.textContent = "Preencha e-mail e senha."; 
+      msg.className = "msg error"; 
+      return; 
+    }
+    
+    btn.disabled = true;
+    btn.textContent = "Verificando...";
+    msg.textContent = "";
+    msg.className = "msg";
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: pass,
+      });
+
+      if (error) {
+        msg.textContent = "Erro: " + error.message;
+        msg.className = "msg error";
+        btn.disabled = false;
+        btn.textContent = "Entrar →";
+      } else {
+        msg.textContent = "Login correto! Redirecionando...";
+        msg.className = "msg";
+        setTimeout(() => window.location.href = 'painel.html', 1000);
+      }
+    } catch (err) {
+      msg.textContent = "Erro inesperado: " + err.message;
       msg.className = "msg error";
       btn.disabled = false;
       btn.textContent = "Entrar →";
-    } else {
-      msg.textContent = "Login correto! Redirecionando...";
-      msg.className = "msg";
-      setTimeout(() => window.location.href = 'painel.html', 1000);
     }
-  } catch (err) {
-    msg.textContent = "Erro inesperado: " + err.message;
-    msg.className = "msg error";
-    btn.disabled = false;
-    btn.textContent = "Entrar →";
-  }
-}
+  });
 
-// 5. Função de Cadastro
-async function cadastrar() {
-  const btn = document.getElementById('btn-cad');
-  const msg = document.getElementById('msg-cad');
-  const nome = document.getElementById('cad-nome').value;
-  const tel = document.getElementById('cad-tel').value;
-  const email = document.getElementById('cad-email').value;
-  const pass = document.getElementById('cad-pass').value;
+  // 5. Função de Cadastro
+  document.getElementById('btn-cad').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-cad');
+    const msg = document.getElementById('msg-cad');
+    const nome = document.getElementById('cad-nome').value;
+    const tel = document.getElementById('cad-tel').value;
+    const email = document.getElementById('cad-email').value;
+    const pass = document.getElementById('cad-pass').value;
 
-  if (!nome || !tel || !email || !pass) { 
-    msg.textContent = "Preencha todos os campos."; 
-    msg.className = "msg error"; 
-    return; 
-  }
-  if (pass.length < 6) { 
-    msg.textContent = "Senha precisa ter no mínimo 6 caracteres."; 
-    msg.className = "msg error"; 
-    return; 
-  }
+    if (!nome || !tel || !email || !pass) { 
+      msg.textContent = "Preencha todos os campos."; 
+      msg.className = "msg error"; 
+      return; 
+    }
+    if (pass.length < 6) { 
+      msg.textContent = "Senha precisa ter no mínimo 6 caracteres."; 
+      msg.className = "msg error"; 
+      return; 
+    }
 
-  btn.disabled = true;
-  btn.textContent = "Criando conta...";
-  msg.textContent = "";
+    btn.disabled = true;
+    btn.textContent = "Criando conta...";
+    msg.textContent = "";
+    msg.className = "msg";
 
-  try {
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: pass,
-      options: {
-        data: {
-          nome: nome,
-          telefone: tel
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: pass,
+        options: {
+          data: {
+            nome: nome,
+            telefone: tel
+          }
         }
-      }
-    });
+      });
 
-    if (error) {
-      msg.textContent = "Erro: " + error.message;
+      if (error) {
+        msg.textContent = "Erro: " + error.message;
+        msg.className = "msg error";
+        btn.disabled = false;
+        btn.textContent = "Criar Conta →";
+      } else {
+        msg.textContent = "Conta criada! Redirecionando...";
+        msg.className = "msg";
+        setTimeout(() => window.location.href = 'painel.html', 1500);
+      }
+    } catch (err) {
+      msg.textContent = "Erro inesperado: " + err.message;
       msg.className = "msg error";
       btn.disabled = false;
       btn.textContent = "Criar Conta →";
-    } else {
-      msg.textContent = "Conta criada! Redirecionando...";
-      msg.className = "msg";
-      setTimeout(() => window.location.href = 'painel.html', 1500);
     }
-  } catch (err) {
-    msg.textContent = "Erro inesperado: " + err.message;
-    msg.className = "msg error";
-    btn.disabled = false;
-    btn.textContent = "Criar Conta →";
-  }
-}
+  });
+
+});
 </script>
+
 </body>
 </html>
