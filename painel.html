@@ -46,6 +46,7 @@ input,select{
   transition:border-color .4s var(--ease-quiet)
 }
 input:focus,select:focus{border-bottom-color:var(--neon-cyan)}
+input::placeholder{color:var(--ink-faint)}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300D4FF' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .5rem center}
 select option{background:var(--void-dark)}
 
@@ -100,6 +101,11 @@ select option{background:var(--void-dark)}
     <div class="box">
       <div class="box-title">Novo Agendamento</div>
       
+      <div class="form-group">
+        <label>Nome do Cliente</label>
+        <input type="text" id="p-cliente-nome" placeholder="Digite o nome do cliente">
+      </div>
+
       <div class="form-group">
         <label>Serviço</label>
         <select id="p-service">
@@ -180,6 +186,12 @@ document.addEventListener('DOMContentLoaded', async function() {
   } else {
     document.getElementById('painel-titulo').textContent = 'Área do Cliente';
     document.getElementById('lista-titulo').textContent = 'Meus Agendamentos';
+    
+    // Auto-preenche o nome do cliente logado
+    const userNome = currentUser.user_metadata?.nome || '';
+    if (userNome) {
+      document.getElementById('p-cliente-nome').value = userNome;
+    }
   }
 
   // 3. Configurar Datas e Horários
@@ -188,16 +200,8 @@ document.addEventListener('DOMContentLoaded', async function() {
   const tomorrow = new Date(today.getTime() + 86400000);
   dateInput.min = tomorrow.toISOString().split('T')[0];
 
-  // Bloquear segundas-feiras e carregar horários
-  dateInput.addEventListener('change', (e) => {
-    const d = new Date(e.target.value);
-    if (d.getDay() === 1) {
-      alert('Segundas estamos fechados. Escolha outro dia.');
-      e.target.value = '';
-      return;
-    }
-    carregarHorarios();
-  });
+  // Carregar horários quando mudar a data (Removido bloqueio de Segundas)
+  dateInput.addEventListener('change', carregarHorarios);
 
   document.getElementById('p-barber').addEventListener('change', carregarHorarios);
 
@@ -275,14 +279,15 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   // 7. Salvar Agendamento no Banco
   async function criarAgendamento() {
+    const clienteNome = document.getElementById('p-cliente-nome').value.trim();
     const service = document.getElementById('p-service').value;
     const barber = document.getElementById('p-barber').value;
     const date = document.getElementById('p-date').value;
     const msgEl = document.getElementById('msg-painel');
     const btn = document.getElementById('btn-agendar');
 
-    if (!service || !barber || !date || !selectedTime) {
-      msgEl.textContent = 'Preencha todos os campos e escolha um horário.';
+    if (!clienteNome || !service || !barber || !date || !selectedTime) {
+      msgEl.textContent = 'Preencha todos os campos, incluindo o nome do cliente.';
       msgEl.style.color = 'var(--danger)';
       return;
     }
@@ -291,7 +296,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     btn.textContent = 'Agendando...';
     msgEl.textContent = '';
 
-    const nome = currentUser.user_metadata?.nome || 'Cliente';
     const tel = currentUser.user_metadata?.telefone || 'Não informado';
 
     const { error } = await supabase
@@ -299,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       .insert([
         { 
           user_id: currentUser.id,
-          cliente_nome: nome,
+          cliente_nome: clienteNome,
           cliente_telefone: tel,
           servico: service,
           barbeiro: barber,
@@ -326,6 +330,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       document.getElementById('p-date').value = '';
       document.getElementById('p-time-grid').innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Escolha data e barbeiro</div>';
       selectedTime = null;
+      
+      // Se for CEO, limpa o campo de nome. Se for cliente, mantém o próprio nome.
+      if (isCEO) {
+        document.getElementById('p-cliente-nome').value = '';
+      }
       
       carregarAgendamentos();
     }
@@ -385,9 +394,10 @@ document.addEventListener('DOMContentLoaded', async function() {
           <div class="hora">${ag.horario}</div>
         </div>
         <div class="info">
+          <strong>Cliente:</strong> ${ag.cliente_nome}<br>
           <strong>Serviço:</strong> ${ag.servico}<br>
           <strong>Barbeiro:</strong> ${ag.barbeiro}<br>
-          ${isCEO ? `<strong>Cliente:</strong> ${ag.cliente_nome} (${ag.cliente_telefone})<br>` : ''}
+          ${isCEO ? `<strong>Telefone:</strong> ${ag.cliente_telefone}<br>` : ''}
         </div>
         <div class="status ${ag.status}">${ag.status}</div>
         <div class="acoes">${acoesHtml}</div>
