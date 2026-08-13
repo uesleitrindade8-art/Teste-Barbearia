@@ -228,9 +228,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     let query = supabase.from('agendamentos').delete();
     
-    // Se for cliente, apaga apenas os próprios. Se for CEO, apaga tudo.
+    // Se for cliente, apaga apenas os próprios.
     if (!isCEO) {
       query = query.eq('user_id', currentUser.id);
+    } else {
+      // Para o CEO apagar tudo, precisamos contornar a trava do Supabase (que exige um WHERE).
+      // Filtramos por todos os status possíveis, o que tecnicamente atende a exigência do WHERE e apaga tudo.
+      query = query.in('status', ['ativo', 'cancelado']);
     }
 
     const { error } = await query;
