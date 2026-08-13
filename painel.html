@@ -36,6 +36,8 @@ body{padding:2rem;max-width:1200px;margin:0 auto}
 .box{background:rgba(10,10,15,0.6);border:1px solid rgba(255,255,255,0.1);padding:2rem;backdrop-filter:blur(8px)}
 .box-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:1.5rem;display:flex;align-items:center;gap:.8rem}
 .box-title::before{content:'';width:16px;height:1px;background:var(--neon-cyan)}
+.painel-titulo{font-family:'Inter',sans-serif;font-weight:800;font-size:1.5rem;letter-spacing:-0.02em;margin-bottom:2rem;color:#fff}
+
 .form-group{margin-bottom:1.2rem}
 label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.5rem}
 input,select{
@@ -86,9 +88,11 @@ select option{background:var(--void-dark)}
   <div class="logo">U·M·L — PAINEL</div>
   <div class="user-info">
     Logado: <span id="user-email">...</span>
-    <button class="btn-logout" onclick="logout()">Sair</button>
+    <button class="btn-logout" id="btn-logout">Sair</button>
   </div>
 </div>
+
+<h1 class="painel-titulo" id="painel-titulo">Área do Cliente</h1>
 
 <div class="painel-grid">
   <!-- Coluna Esquerda: Formulário -->
@@ -131,7 +135,7 @@ select option{background:var(--void-dark)}
         </div>
       </div>
 
-      <button class="btn-submit" id="btn-agendar" onclick="criarAgendamento()">Confirmar Agendamento</button>
+      <button class="btn-submit" id="btn-agendar">Confirmar Agendamento</button>
       <div id="msg-painel"></div>
     </div>
   </div>
@@ -146,49 +150,45 @@ select option{background:var(--void-dark)}
 </div>
 
 <script>
-// 1. Configuração Supabase
-const SUPABASE_URL = 'https://bululpefngukxmfrfnzk.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_8iEoL6G6SOiTyohLhQq74w_TV0qT3Am';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+document.addEventListener('DOMContentLoaded', async function() {
+  // 1. Configuração Supabase
+  const SUPABASE_URL = 'https://bululpefngukxmfrfnzk.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_8iEoL6G6SOiTyohLhQq74w_TV0qT3Am';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  
+  const CEO_EMAIL = 'ceo@barbeariauml.com';
+  let currentUser = null;
+  let isCEO = false;
+  let selectedTime = null;
 
-const CEO_EMAIL = 'ceo@barbeariauml.com';
-let currentUser = null;
-let isCEO = false;
-let selectedTime = null;
-
-// 2. Verificar Login ao carregar a página
-supabase.auth.getSession().then(({ data: { session } }) => {
+  // 2. Verificar Login ao carregar a página usando replace para evitar loops
+  const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
-    window.location.href = '/login.html';
+    window.location.replace('/login.html');
     return;
   }
+  
   currentUser = session.user;
   isCEO = currentUser.email === CEO_EMAIL;
   
   document.getElementById('user-email').textContent = currentUser.email;
-  if (isCEO) {
-    document.getElementById('lista-titulo').textContent = 'Todos os Agendamentos (CEO)';
-  }
   
-  configurarFormulario();
-  carregarAgendamentos();
-});
+  // Diferenciação visual entre CEO e Cliente
+  if (isCEO) {
+    document.getElementById('painel-titulo').textContent = 'Painel Administrativo (CEO)';
+    document.getElementById('lista-titulo').textContent = 'Todos os Agendamentos (CEO)';
+  } else {
+    document.getElementById('painel-titulo').textContent = 'Área do Cliente';
+    document.getElementById('lista-titulo').textContent = 'Meus Agendamentos';
+  }
 
-// 3. Logout
-function logout() {
-  supabase.auth.signOut().then(() => {
-    window.location.href = '/login.html';
-  });
-}
-
-// 4. Configurar Datas e Horários
-function configurarFormulario() {
+  // 3. Configurar Datas e Horários
   const dateInput = document.getElementById('p-date');
   const today = new Date();
   const tomorrow = new Date(today.getTime() + 86400000);
   dateInput.min = tomorrow.toISOString().split('T')[0];
 
-  // Bloquear segundas-feiras
+  // Bloquear segundas-feiras e carregar horários
   dateInput.addEventListener('change', (e) => {
     const d = new Date(e.target.value);
     if (d.getDay() === 1) {
@@ -200,194 +200,205 @@ function configurarFormulario() {
   });
 
   document.getElementById('p-barber').addEventListener('change', carregarHorarios);
-}
 
-// 5. Carregar Horários e Bloquear os ocupados no banco
-async function carregarHorarios() {
-  const date = document.getElementById('p-date').value;
-  const barber = document.getElementById('p-barber').value;
-  const grid = document.getElementById('p-time-grid');
-  
-  if (!date || !barber) return;
+  // 4. Logout
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.replace('/login.html');
+  });
 
-  grid.innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Verificando horários...</div>';
-  selectedTime = null;
+  // 5. Criar Agendamento
+  document.getElementById('btn-agendar').addEventListener('click', criarAgendamento);
 
-  const slots = ['09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'];
+  // Funções globais para os botões dinâmicos (cancelar)
+  window.cancelarAgendamento = async function(id) {
+    if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
+    const { error } = await supabase
+      .from('agendamentos')
+      .update({ status: 'cancelado' })
+      .eq('id', id);
 
-  // Consulta o banco: quais horários desse barbeiro nesse dia estão ATIVOS?
-  const { data: ocupados, error } = await supabase
-    .from('agendamentos')
-    .select('horario')
-    .eq('data', date)
-    .eq('barbeiro', barber)
-    .eq('status', 'ativo');
-
-  if (error) {
-    grid.innerHTML = '<div style="grid-column: 1 / -1; color: var(--danger);">Erro ao buscar horários.</div>';
-    return;
-  }
-
-  const horariosOcupados = ocupados.map(o => o.horario);
-  
-  grid.innerHTML = '';
-  slots.forEach(s => {
-    const btn = document.createElement('button');
-    btn.className = 'time-slot';
-    btn.textContent = s;
-    btn.dataset.time = s;
-    
-    if (horariosOcupados.includes(s)) {
-      btn.disabled = true;
-      btn.classList.add('disabled');
+    if (error) {
+      alert('Erro ao cancelar.');
     } else {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedTime = s;
-      });
+      carregarAgendamentos();
     }
-    grid.appendChild(btn);
-  });
-}
-
-// 6. Criar Agendamento no Banco
-async function criarAgendamento() {
-  const service = document.getElementById('p-service').value;
-  const barber = document.getElementById('p-barber').value;
-  const date = document.getElementById('p-date').value;
-  const msgEl = document.getElementById('msg-painel');
-
-  if (!service || !barber || !date || !selectedTime) {
-    msgEl.textContent = 'Preencha todos os campos e escolha um horário.';
-    msgEl.style.color = 'var(--danger)';
-    return;
   }
 
-  const btn = document.getElementById('btn-agendar');
-  btn.disabled = true;
-  btn.textContent = 'Agendando...';
-  msgEl.textContent = '';
-
-  // Puxa o nome e telefone dos metadata do usuário
-  const nome = currentUser.user_metadata?.nome || 'Cliente';
-  const tel = currentUser.user_metadata?.telefone || 'Não informado';
-
-  const { error } = await supabase
-    .from('agendamentos')
-    .insert([
-      { 
-        user_id: currentUser.id,
-        cliente_nome: nome,
-        cliente_telefone: tel,
-        servico: service,
-        barbeiro: barber,
-        data: date,
-        horario: selectedTime,
-        status: 'ativo'
-      }
-    ]);
-
-  if (error) {
-    msgEl.textContent = 'Erro ao agendar: ' + error.message;
-    msgEl.style.color = 'var(--danger)';
-    btn.disabled = false;
-    btn.textContent = 'Confirmar Agendamento';
-  } else {
-    msgEl.textContent = 'Agendamento confirmado com sucesso!';
-    msgEl.style.color = 'var(--neon-cyan)';
-    btn.textContent = 'Confirmar Agendamento';
-    btn.disabled = false;
+  // 6. Carregar Horários e Bloquear os ocupados
+  async function carregarHorarios() {
+    const date = document.getElementById('p-date').value;
+    const barber = document.getElementById('p-barber').value;
+    const grid = document.getElementById('p-time-grid');
     
-    // Limpar formulário e recarregar listas
-    document.getElementById('p-service').value = '';
-    document.getElementById('p-barber').value = '';
-    document.getElementById('p-date').value = '';
-    document.getElementById('p-time-grid').innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Escolha data e barbeiro</div>';
+    if (!date || !barber) return;
+
+    grid.innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Verificando horários...</div>';
     selectedTime = null;
-    
-    carregarAgendamentos();
-  }
-}
 
-// 7. Carregar Lista de Agendamentos
-async function carregarAgendamentos() {
-  const lista = document.getElementById('lista-agendamentos');
-  lista.innerHTML = '<div class="empty-state">Carregando...</div>';
+    const slots = ['09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'];
 
-  let query = supabase.from('agendamentos').select('*').order('data', { ascending: true });
-  
-  // Se não for CEO, vê apenas os próprios agendamentos
-  if (!isCEO) {
-    query = query.eq('user_id', currentUser.id);
-  }
+    const { data: ocupados, error } = await supabase
+      .from('agendamentos')
+      .select('horario')
+      .eq('data', date)
+      .eq('barbeiro', barber)
+      .eq('status', 'ativo');
 
-  const { data, error } = await query;
-
-  if (error) {
-    lista.innerHTML = '<div class="empty-state" style="color:var(--danger);">Erro ao carregar.</div>';
-    return;
-  }
-
-  if (data.length === 0) {
-    lista.innerHTML = '<div class="empty-state">Nenhum agendamento encontrado.</div>';
-    return;
-  }
-
-  lista.innerHTML = '';
-  data.forEach(ag => {
-    const dataFormatada = new Date(ag.data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
-    const isCancelado = ag.status === 'cancelado';
-    
-    const card = document.createElement('div');
-    card.className = `agendamento-card ${isCancelado ? 'cancelado' : ''}`;
-    
-    let acoesHtml = '';
-    if (!isCancelado) {
-      // Cliente pode cancelar
-      if (!isCEO || ag.user_id === currentUser.id) {
-        acoesHtml += `<button class="btn-action danger" onclick="cancelarAgendamento('${ag.id}')">Cancelar</button>`;
-      }
-      // CEO pode mandar WhatsApp
-      if (isCEO) {
-        const telLimpo = ag.cliente_telefone.replace(/\D/g, '');
-        const msgWpp = `Olá ${ag.cliente_nome}, aqui é a Barbearia UML. Sobre seu agendamento de ${ag.servico} no dia ${dataFormatada}...`;
-        acoesHtml += `<a class="btn-action whats" href="https://wa.me/55${telLimpo}?text=${encodeURIComponent(msgWpp)}" target="_blank">WhatsApp</a>`;
-      }
+    if (error) {
+      grid.innerHTML = '<div style="grid-column: 1 / -1; color: var(--danger);">Erro ao buscar horários.</div>';
+      return;
     }
 
-    card.innerHTML = `
-      <div class="topo">
-        <div class="data">${dataFormatada}</div>
-        <div class="hora">${ag.horario}</div>
-      </div>
-      <div class="info">
-        <strong>Serviço:</strong> ${ag.servico}<br>
-        <strong>Barbeiro:</strong> ${ag.barbeiro}<br>
-        ${isCEO ? `<strong>Cliente:</strong> ${ag.cliente_nome} (${ag.cliente_telefone})<br>` : ''}
-      </div>
-      <div class="status ${ag.status}">${ag.status}</div>
-      <div class="acoes">${acoesHtml}</div>
-    `;
-    lista.appendChild(card);
-  });
-}
-
-// 8. Cancelar Agendamento
-async function cancelarAgendamento(id) {
-  if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
-
-  const { error } = await supabase
-    .from('agendamentos')
-    .update({ status: 'cancelado' })
-    .eq('id', id);
-
-  if (error) {
-    alert('Erro ao cancelar.');
-  } else {
-    carregarAgendamentos();
+    const horariosOcupados = ocupados.map(o => o.horario);
+    
+    grid.innerHTML = '';
+    slots.forEach(s => {
+      const btn = document.createElement('button');
+      btn.className = 'time-slot';
+      btn.textContent = s;
+      btn.dataset.time = s;
+      
+      if (horariosOcupados.includes(s)) {
+        btn.disabled = true;
+        btn.classList.add('disabled');
+      } else {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedTime = s;
+        });
+      }
+      grid.appendChild(btn);
+    });
   }
-}
+
+  // 7. Salvar Agendamento no Banco
+  async function criarAgendamento() {
+    const service = document.getElementById('p-service').value;
+    const barber = document.getElementById('p-barber').value;
+    const date = document.getElementById('p-date').value;
+    const msgEl = document.getElementById('msg-painel');
+    const btn = document.getElementById('btn-agendar');
+
+    if (!service || !barber || !date || !selectedTime) {
+      msgEl.textContent = 'Preencha todos os campos e escolha um horário.';
+      msgEl.style.color = 'var(--danger)';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Agendando...';
+    msgEl.textContent = '';
+
+    const nome = currentUser.user_metadata?.nome || 'Cliente';
+    const tel = currentUser.user_metadata?.telefone || 'Não informado';
+
+    const { error } = await supabase
+      .from('agendamentos')
+      .insert([
+        { 
+          user_id: currentUser.id,
+          cliente_nome: nome,
+          cliente_telefone: tel,
+          servico: service,
+          barbeiro: barber,
+          data: date,
+          horario: selectedTime,
+          status: 'ativo'
+        }
+      ]);
+
+    if (error) {
+      msgEl.textContent = 'Erro ao agendar: ' + error.message;
+      msgEl.style.color = 'var(--danger)';
+      btn.disabled = false;
+      btn.textContent = 'Confirmar Agendamento';
+    } else {
+      msgEl.textContent = 'Agendamento confirmado com sucesso!';
+      msgEl.style.color = 'var(--neon-cyan)';
+      btn.textContent = 'Confirmar Agendamento';
+      btn.disabled = false;
+      
+      // Limpar formulário
+      document.getElementById('p-service').value = '';
+      document.getElementById('p-barber').value = '';
+      document.getElementById('p-date').value = '';
+      document.getElementById('p-time-grid').innerHTML = '<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--ink-mute); text-align: center; padding: 1rem 0;">Escolha data e barbeiro</div>';
+      selectedTime = null;
+      
+      carregarAgendamentos();
+    }
+  }
+
+  // 8. Carregar Lista de Agendamentos
+  async function carregarAgendamentos() {
+    const lista = document.getElementById('lista-agendamentos');
+    lista.innerHTML = '<div class="empty-state">Carregando...</div>';
+
+    let query = supabase.from('agendamentos').select('*').order('data', { ascending: true });
+    
+    // Se não for CEO, vê apenas os próprios agendamentos
+    if (!isCEO) {
+      query = query.eq('user_id', currentUser.id);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      lista.innerHTML = '<div class="empty-state" style="color:var(--danger);">Erro ao carregar.</div>';
+      return;
+    }
+
+    if (data.length === 0) {
+      lista.innerHTML = '<div class="empty-state">Nenhum agendamento encontrado.</div>';
+      return;
+    }
+
+    lista.innerHTML = '';
+    data.forEach(ag => {
+      const dataFormatada = new Date(ag.data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
+      const isCancelado = ag.status === 'cancelado';
+      
+      const card = document.createElement('div');
+      card.className = `agendamento-card ${isCancelado ? 'cancelado' : ''}`;
+      
+      let acoesHtml = '';
+      if (!isCancelado) {
+        // Cliente pode cancelar o próprio. CEO pode cancelar qualquer um.
+        if (isCEO || ag.user_id === currentUser.id) {
+          acoesHtml += `<button class="btn-action danger" onclick="window.cancelarAgendamento('${ag.id}')">Cancelar</button>`;
+        }
+        // CEO tem botão de WhatsApp para mandar mensagem direto pro cliente
+        if (isCEO) {
+          const telLimpo = ag.cliente_telefone.replace(/\D/g, '');
+          if (telLimpo && telLimpo.length >= 10) {
+            const msgWpp = `Olá ${ag.cliente_nome}, aqui é da Barbearia UML. Sobre seu agendamento de ${ag.servico} no dia ${dataFormatada}...`;
+            acoesHtml += `<a class="btn-action whats" href="https://wa.me/55${telLimpo}?text=${encodeURIComponent(msgWpp)}" target="_blank">WhatsApp</a>`;
+          }
+        }
+      }
+
+      card.innerHTML = `
+        <div class="topo">
+          <div class="data">${dataFormatada}</div>
+          <div class="hora">${ag.horario}</div>
+        </div>
+        <div class="info">
+          <strong>Serviço:</strong> ${ag.servico}<br>
+          <strong>Barbeiro:</strong> ${ag.barbeiro}<br>
+          ${isCEO ? `<strong>Cliente:</strong> ${ag.cliente_nome} (${ag.cliente_telefone})<br>` : ''}
+        </div>
+        <div class="status ${ag.status}">${ag.status}</div>
+        <div class="acoes">${acoesHtml}</div>
+      `;
+      lista.appendChild(card);
+    });
+  }
+
+  // Inicia buscando os agendamentos
+  carregarAgendamentos();
+});
 </script>
 
 </body>
