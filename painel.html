@@ -31,6 +31,16 @@ body{padding:2rem;max-width:1200px;margin:0 auto}
 .painel-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:3rem}
 @media (max-width:900px){.painel-grid{grid-template-columns:1fr}}
 
+/* Banner Fidelidade */
+.fidelidade-banner{
+  background:linear-gradient(90deg, rgba(255,215,0,0.15), transparent);
+  border:1px solid var(--gold); border-left:4px solid var(--gold);
+  padding:1.5rem 2rem; margin-bottom:2rem; display:none;
+  font-family:'Inter',sans-serif; color:var(--gold); line-height:1.5;
+}
+.fidelidade-banner h3{font-size:1.2rem; margin-bottom:0.5rem; font-weight:800;}
+.fidelidade-banner p{font-size:0.9rem; color:rgba(255,215,0,0.8);}
+
 /* Dashboard */
 .dashboard{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;margin-bottom:3rem}
 @media (max-width:700px){.dashboard{grid-template-columns:1fr}}
@@ -84,15 +94,15 @@ select option{background:var(--void-dark)}
 .agendamento-card .status.ativo{color:var(--neon-cyan);border-color:var(--neon-cyan)}
 .agendamento-card .status.cancelado{color:var(--danger);border-color:var(--danger)}
 .agendamento-card .status.concluido{color:#4D9FFF;border-color:#4D9FFF}
-
 .agendamento-card .acoes{display:flex;gap:.8rem;margin-top:1rem;flex-wrap:wrap}
+
 .btn-action{padding:.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;border:1px solid var(--ink-faint);background:transparent;color:#fff;cursor:pointer;transition:all .3s var(--ease-quiet);text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}
 .btn-action:hover{border-color:#fff}
 .btn-action.danger:hover{border-color:var(--danger);color:var(--danger)}
 .btn-action.success:hover{border-color:#25D366;color:#25D366}
 .btn-action.whats:hover{border-color:#25D366;color:#25D366}
 
-.fidelidade-badge{display:block;margin-top:1rem;padding:.8rem;background:rgba(255,215,0,0.1);border:1px solid var(--gold);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.15em;text-align:center}
+.especial-badge{display:inline-block; margin-top:1rem; padding:.4rem .8rem; background:rgba(255,215,0,0.1); border:1px solid var(--gold); color:var(--gold); font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.15em;}
 
 .empty-state{text-align:center;padding:4rem 2rem;color:var(--ink-mute);font-family:'JetBrains Mono',monospace;font-size:.9rem;letter-spacing:0.1em}
 #msg-painel{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--neon-cyan);margin-top:1rem;min-height:1rem}
@@ -116,6 +126,12 @@ select option{background:var(--void-dark)}
 </div>
 
 <h1 class="painel-titulo" id="painel-titulo">Área do Cliente</h1>
+
+<!-- Banner de Fidelidade -->
+<div class="fidelidade-banner" id="fidelidade-banner">
+  <h3>🏆 PARABÉNS! Você é um cliente fiel.</h3>
+  <p>Agradecemos pela preferência! Como você já realizou 10 cortes conosco, liberamos um <strong>Corte Especial com 50% de DESCONTO</strong> para o seu próximo agendamento. Aproveite!</p>
+</div>
 
 <!-- Dashboard Financeiro (Aparece só para o CEO) -->
 <div class="dashboard" id="dashboard-ceo" style="display:none;">
@@ -154,6 +170,7 @@ select option{background:var(--void-dark)}
           <option value="Sobrancelha">Sobrancelha — R$25</option>
           <option value="Platinado">Platinado — R$220</option>
           <option value="Pigmentação">Pigmentação — R$85</option>
+          <option value="Corte Especial" id="opt-especial" style="display:none; color:var(--gold);">Corte Especial (Fidelidade) — R$32</option>
         </select>
       </div>
       <div class="form-group">
@@ -216,6 +233,7 @@ select option{background:var(--void-dark)}
           <option value="Sobrancelha">Sobrancelha</option>
           <option value="Platinado">Platinado</option>
           <option value="Pigmentação">Pigmentação</option>
+          <option value="Corte Especial">Corte Especial (Fidelidade)</option>
         </select>
       </div>
       <div class="form-group">
@@ -262,7 +280,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   let currentUser = null;
   let isCEO = false;
   let selectedTime = null;
-  let allBookings = []; // Guardará todos os agendamentos para calcular estatísticas
+  let allBookings = [];
 
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
@@ -279,7 +297,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('painel-titulo').textContent = 'Painel Administrativo (CEO)';
     document.getElementById('lista-titulo').textContent = 'Todos os Agendamentos (CEO)';
     document.getElementById('dashboard-ceo').style.display = 'grid';
-    document.getElementById('btn-perfil').style.display = 'none'; // CEO não precisa editar perfil de cliente
+    document.getElementById('btn-perfil').style.display = 'none';
   } else {
     document.getElementById('painel-titulo').textContent = 'Área do Cliente';
     document.getElementById('lista-titulo').textContent = 'Meus Agendamentos';
@@ -396,7 +414,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     } else {
       msgEl.textContent = 'Agendamento confirmado!'; msgEl.style.color = 'var(--neon-cyan)';
       
-      // Dispara notificação pro CEO (Netlify Function)
+      // Dispara notificação pro CEO
       fetch('/.netlify/functions/agendamento', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -420,16 +438,51 @@ document.addEventListener('DOMContentLoaded', async function() {
     const { data } = await query;
     allBookings = data || [];
     
+    verificarFidelidade();
     if (isCEO) atualizarDashboard();
     renderizarLista();
   }
 
+  function verificarFidelidade() {
+    const optEspecial = document.getElementById('opt-especial');
+    const banner = document.getElementById('fidelidade-banner');
+
+    // Conta quantos cortes o cliente logado JÁ CONCLUIU (ignora cancelados e ativos)
+    let cortesConcluidos = 0;
+    let jaUsouEspecial = false;
+    let temEspecialAtivo = false;
+
+    allBookings.forEach(ag => {
+      if (ag.status === 'concluido') cortesConcluidos++;
+      if (ag.servico === 'Corte Especial') {
+        if (ag.status === 'concluido') jaUsouEspecial = true;
+        if (ag.status === 'ativo') temEspecialAtivo = true;
+      }
+    });
+
+    // Regra: Liberar o prêmio se tiver >= 10 cortes, não tiver usado, e não tiver um ativo no momento
+    const podeUsarPremio = cortesConcluidos >= 10 && !jaUsouEspecial && !temEspecialAtivo;
+
+    if (isCEO) {
+      // CEO sempre pode marcar o corte especial para qualquer cliente avulso
+      optEspecial.style.display = 'block';
+    } else {
+      // Cliente só vê se tiver ganhado
+      if (podeUsarPremio) {
+        banner.style.display = 'block';
+        optEspecial.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+        optEspecial.style.display = 'none';
+      }
+    }
+  }
+
   function atualizarDashboard() {
-    const precos = { 'Corte Navalhado': 65, 'Barba Completa': 55, 'Corte + Barba': 105, 'Sobrancelha': 25, 'Platinado': 220, 'Pigmentação': 85 };
+    const precos = { 'Corte Navalhado': 65, 'Barba Completa': 55, 'Corte + Barba': 105, 'Sobrancelha': 25, 'Platinado': 220, 'Pigmentação': 85, 'Corte Especial': 32 };
     let faturamento = 0;
     let barbeirosCount = {};
     
-    // Datas da semana atual
     const hoje = new Date();
     const diaSemana = hoje.getDay();
     const segunda = new Date(hoje); segunda.setDate(hoje.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1));
@@ -440,7 +493,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       if (ag.status === 'ativo' || ag.status === 'concluido') {
         faturamento += precos[ag.servico] || 0;
         barbeirosCount[ag.barbeiro] = (barbeirosCount[ag.barbeiro] || 0) + 1;
-        
         const dAg = new Date(ag.data + 'T00:00:00');
         if (dAg >= segunda && dAg <= domingo) cortesSemana++;
       }
@@ -476,12 +528,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       lista.innerHTML = '<div class="empty-state">Nenhum agendamento encontrado.</div>'; return;
     }
 
-    // Conta cortes concluídos por user_id (para fidelidade)
-    let fidelidade = {};
-    allBookings.forEach(ag => {
-      if (ag.status === 'concluido') fidelidade[ag.user_id] = (fidelidade[ag.user_id] || 0) + 1;
-    });
-
     lista.innerHTML = '';
     dados.forEach(ag => {
       const dataFormatada = new Date(ag.data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
@@ -501,12 +547,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
       }
 
-      // Sistema de Fidelidade (A cada 10 cortes concluídos, libera prêmio)
-      let fidelidadeHtml = '';
-      const cortesFeitos = fidelidade[ag.user_id] || 0;
-      if (cortesFeitos > 0 && cortesFeitos % 10 === 0 && ag.status === 'ativo') {
-        fidelidadeHtml = `<div class="fidelidade-badge">🏆 CORTE PROMOCIONAL 50% LIBERADO!</div>`;
-      }
+      let especialBadge = ag.servico === 'Corte Especial' ? `<div class="especial-badge">🏆 PRÊMIO DE FIDELIDADE</div>` : '';
 
       card.innerHTML = `
         <div class="topo">
@@ -520,7 +561,7 @@ document.addEventListener('DOMContentLoaded', async function() {
           ${isCEO ? `<strong>Telefone:</strong> ${ag.cliente_telefone}<br>` : ''}
         </div>
         <div class="status ${ag.status}">${ag.status}</div>
-        ${fidelidadeHtml}
+        ${especialBadge}
         <div class="acoes">${acoesHtml}</div>
       `;
       lista.appendChild(card);
